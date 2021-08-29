@@ -1,13 +1,11 @@
 {
   "name": "webhook",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "KweeksNews Webhook Handlers",
-  "main": "workers/index.js",
   "scripts": {
     "start:dev": "webpack serve --config webpack.dev.js",
-    "build:gh-pages": "webpack --config webpack.prod.js",
-    "build:cf-workers": "webpack --config webpack.config.js",
-    "lint": "eslint --fix ./src"
+    "build": "webpack --config webpack.prod.js",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "author": "KweeksDev <admin@kweeksnews.com>",
   "license": "GPL-3.0-or-later",
@@ -26,7 +24,7 @@
     "imagemin-optipng": "^8.0.0",
     "imagemin-svgo": "^9.0.0",
     "style-loader": "^2.0.0",
-    "svgo": "^2.3.0",
+    "svgo": "^2.5.0",
     "webpack": "^5.40.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2",
