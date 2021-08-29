@@ -2,7 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
-const { extendDefaultPlugins } = require('svgo');
 
 module.exports = {
   entry: {
@@ -55,27 +54,23 @@ module.exports = {
       minimizerOptions: {
         plugins: [
           ['optipng', { optimizationLevel: 5 }],
-          [
-            'svgo',
-            {
-              plugins: extendDefaultPlugins([
-                {
-                  name: 'removeViewBox',
-                  active: false,
+          ['svgo', {
+            plugins: [
+              {
+                name: 'preset-default',
+                params: { overrides: { removeViewBox: false } },
+              },
+              {
+                name: 'addAttributesToSVGElement',
+                params: {
+                  attributes: [{ xmlns: 'http://www.w3.org/2000/svg' }],
                 },
-                {
-                  name: 'addAttributesToSVGElement',
-                  params: {
-                    attributes: [{ xmlns: 'http://www.w3.org/2000/svg' }],
-                  },
-                },
-              ]),
-            },
-          ],
+              },
+            ],
+          }],
         ],
       },
     }),
-
   ],
   optimization: {
     splitChunks: {
