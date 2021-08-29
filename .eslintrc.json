@@ -19,11 +19,12 @@
       "error",
       {
         "devDependencies": [
-          "webpack.*.js"
+          "**/webpack.*.js"
         ]
       }
     ],
     "no-case-declarations": 0,
+    "no-param-reassign": 0,
     "no-restricted-globals": 0,
     "no-throw-literal": 0,
     "no-undef": 0

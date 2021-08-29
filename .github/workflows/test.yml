@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
-name: Deploy
+name: Test
 
 on:
-  push:
+  pull_request:
     branches:
       - master
 
@@ -36,8 +36,8 @@ jobs:
           npm ci
           npm run lint
 
-  deploy-cf-workers:
-    name: Deploy Cloudflare Workers
+  test-build:
+    name: Test Build
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -58,7 +58,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
 
-      - name: Publish
-        uses: cloudflare/wrangler-action@1.3.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+          cd workers
+          npm ci
+          npm run build
