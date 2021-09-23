@@ -1,30 +1,49 @@
 import { Router } from 'itty-router';
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 
+import CONFIG from './config/config';
 import validateKey from './middlewares/validate-key';
 import validateJsonBody from './middlewares/validate-json-body';
 import { handleFreshstatusv2, handleTelegramv2, handleWordPressv2 } from './injection-v2';
 
-const router = Router();
+const rootRouter = Router();
+const apiRouter = Router({ base: '/api:key' });
 
-router.get('/', (_, event) => getAssetFromKV(event, {
-  mapRequestToAsset: (request) => new Request(`${new URL(request.url).origin}/index.html`, request),
-}));
+apiRouter
+  .post('/v2/freshstatus', validateKey, validateJsonBody, handleFreshstatusv2)
+  .post('/v2/telegram', validateKey, validateJsonBody, handleTelegramv2)
+  .post('/v2/wordpress', validateKey, validateJsonBody, handleWordPressv2);
 
-router.post('/api:key/v2/freshstatus', validateKey, validateJsonBody, handleFreshstatusv2);
+rootRouter
+  .get('/', (_, event) => getAssetFromKV(event, {
+    mapRequestToAsset: (request) => new Request(
+      `${new URL(request.url).origin}/index.html`, request,
+    ),
+  }))
+  .all('/api:key/*', apiRouter.handle)
+  .all('*', async (_, event) => {
+    if (event.request.method == 'GET') {
+      try {
+        return await getAssetFromKV(event);
+      } catch (e) {
+        return getAssetFromKV(event, {
+          mapRequestToAsset: (request) => new Request(
+            `${new URL(request.url).origin}/404.html`, request,
+          ),
+        });
+      }
+    } else {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: 'Invalid request',
+        }),
+        {
+          status: 200,
+          headers: CONFIG.headers,
+        },
+      );
+    }
+  });
 
-router.post('/api:key/v2/telegram', validateKey, validateJsonBody, handleTelegramv2);
-
-router.post('/api:key/v2/wordpress', validateKey, validateJsonBody, handleWordPressv2);
-
-router.all('*', async (_, event) => {
-  try {
-    return await getAssetFromKV(event);
-  } catch (e) {
-    return getAssetFromKV(event, {
-      mapRequestToAsset: (request) => new Request(`${new URL(request.url).origin}/404.html`, request),
-    });
-  }
-});
-
-export default (request, event) => router.handle(request, event);
+export default (request, event) => rootRouter.handle(request, event);
