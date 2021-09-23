@@ -3,7 +3,7 @@ import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 
 import validateKey from './middlewares/validate-key';
 import validateJsonBody from './middlewares/validate-json-body';
-import { handleFreshstatus, handleTelegram, handleWordPress } from './injection';
+import { handleFreshstatusv2, handleTelegramv2, handleWordPressv2 } from './injection-v2';
 
 const router = Router();
 
@@ -11,11 +11,11 @@ router.get('/', (_, event) => getAssetFromKV(event, {
   mapRequestToAsset: (request) => new Request(`${new URL(request.url).origin}/index.html`, request),
 }));
 
-router.post('/api:key/freshstatus', validateKey, validateJsonBody, handleFreshstatus);
+router.post('/api:key/v2/freshstatus', validateKey, validateJsonBody, handleFreshstatusv2);
 
-router.post('/api:key/telegram', validateKey, validateJsonBody, handleTelegram);
+router.post('/api:key/v2/telegram', validateKey, validateJsonBody, handleTelegramv2);
 
-router.post('/api:key/wordpress', validateKey, validateJsonBody, handleWordPress);
+router.post('/api:key/v2/wordpress', validateKey, validateJsonBody, handleWordPressv2);
 
 router.all('*', async (_, event) => {
   try {

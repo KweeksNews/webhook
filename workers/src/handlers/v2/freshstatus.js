@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import CONFIG from '../config/config';
+import CONFIG from '../../config/config';
 
 class FreshstatusHandler {
   constructor({

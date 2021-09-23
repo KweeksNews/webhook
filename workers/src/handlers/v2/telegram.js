@@ -1,5 +1,5 @@
-import CONFIG from '../config/config';
-import STRING from '../config/string';
+import CONFIG from '../../config/config';
+import STRING from '../../config/string';
 
 class TelegramHandler {
   constructor({
