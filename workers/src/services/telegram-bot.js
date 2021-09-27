@@ -15,10 +15,9 @@ class TelegramBot {
   composeFetchBody(
     options = {},
   ) {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const key of Object.keys(options)) {
+    Object.keys(options).forEach((key) => {
       if (!options[key]) delete options[key];
-    }
+    });
 
     return JSON.stringify(options);
   }
