@@ -10,9 +10,8 @@ class WordPressHandler {
   async handle(request) {
     try {
       const data = await request.json();
-      const { headers } = request;
 
-      if (await this.executeCommand(headers, data)) {
+      if (await this.executeCommand(data)) {
         return new Response(JSON.stringify({
           success: true,
           data: 'Request success',
@@ -40,30 +39,25 @@ class WordPressHandler {
     }
   }
 
-  async executeCommand(headers, data) {
-    const userAgent = JSON.parse(await KV.get('user-agent'));
+  async executeCommand(data) {
     const chatId = JSON.parse(await KV.get('chat-id'));
 
-    if (headers.get('user-agent') == userAgent.kweeksnews) {
-      switch (data.channel) {
-        case 'wordpress':
-          this.chatId = chatId.wordpress;
-          await this.sendWordPressLog(data);
-          return true;
-        case 'content':
-          this.chatId = chatId.content;
-          await this.sendContentLog(data);
-          return true;
-        case 'user':
-          this.chatId = chatId.user;
-          await this.sendUserLog(data);
-          return true;
-        default:
-          return false;
-      }
+    switch (data.channel) {
+      case 'wordpress':
+        this.chatId = chatId.wordpress;
+        await this.sendWordPressLog(data);
+        return true;
+      case 'content':
+        this.chatId = chatId.content;
+        await this.sendContentLog(data);
+        return true;
+      case 'user':
+        this.chatId = chatId.user;
+        await this.sendUserLog(data);
+        return true;
+      default:
+        return false;
     }
-
-    return false;
   }
 
   async sendWordPressLog(data) {

@@ -12,9 +12,8 @@ class FreshstatusHandler {
   async handle(request) {
     try {
       const data = await request.json();
-      const { headers } = request;
 
-      if (await this.executeCommand(headers, data)) {
+      if (await this.executeCommand(data)) {
         return new Response(JSON.stringify({
           success: true,
           data: 'Request success',
@@ -42,40 +41,34 @@ class FreshstatusHandler {
     }
   }
 
-  async executeCommand(headers, data) {
-    const userAgent = JSON.parse(await KV.get('user-agent'));
+  async executeCommand(data) {
     const chatId = JSON.parse(await KV.get('chat-id'));
-
     this.chatId = chatId.server;
 
-    if (headers.get('user-agent') == userAgent.freshstatus) {
-      switch (data.event_data?.event_type) {
-        case 'INCIDENT_OPEN':
-          await this.sendIncidentOpenedLog(data);
-          return true;
-        case 'INCIDENT_NOTE_CREATE':
-          if (data.incident_status == 'Closed') {
-            await this.sendIncidentClosedLog(data);
-          } else {
-            await this.sendIncidentNoteCreatedLog(data);
-          }
-          return true;
-        case 'MAINTENANCE_PLANNED':
-          await this.sendMaintenancePlannedLog(data);
-          return true;
-        case 'MAINTENANCE_NOTE_CREATE':
-          if (data.incident_status == 'Closed') {
-            await this.sendMaintenanceClosedLog(data);
-          } else {
-            await this.sendMaintenanceNoteCreatedLog(data);
-          }
-          return true;
-        default:
-          return false;
-      }
+    switch (data.event_data?.event_type) {
+      case 'INCIDENT_OPEN':
+        await this.sendIncidentOpenedLog(data);
+        return true;
+      case 'INCIDENT_NOTE_CREATE':
+        if (data.incident_status == 'Closed') {
+          await this.sendIncidentClosedLog(data);
+        } else {
+          await this.sendIncidentNoteCreatedLog(data);
+        }
+        return true;
+      case 'MAINTENANCE_PLANNED':
+        await this.sendMaintenancePlannedLog(data);
+        return true;
+      case 'MAINTENANCE_NOTE_CREATE':
+        if (data.incident_status == 'Closed') {
+          await this.sendMaintenanceClosedLog(data);
+        } else {
+          await this.sendMaintenanceNoteCreatedLog(data);
+        }
+        return true;
+      default:
+        return false;
     }
-
-    return false;
   }
 
   // eslint-disable-next-line class-methods-use-this
