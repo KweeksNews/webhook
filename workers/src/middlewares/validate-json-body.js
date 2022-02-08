@@ -4,7 +4,7 @@ const validateJsonBody = async (request) => {
   try {
     const { headers } = request;
 
-    if (headers.get('content-type') == 'application/json') {
+    if (headers.get('content-type').includes('application/json')) {
       const requestClone = await request.clone();
       await requestClone.json();
     } else {
