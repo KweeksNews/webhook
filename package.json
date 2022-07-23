@@ -1,15 +1,19 @@
 {
   "name": "webhook",
-  "version": "2.0.0",
   "description": "KweeksNews Webhook Handlers",
+  "version": "2.0.0",
+  "author": "KweeksDev <admin@kweeksnews.com>",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "start:dev": "webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
-  "author": "KweeksDev <admin@kweeksnews.com>",
-  "license": "GPL-3.0-or-later",
-  "private": true,
+  "dependencies": {
+    "jquery": "^3.6.0",
+    "lazysizes": "^5.3.2",
+    "regenerator-runtime": "^0.13.7"
+  },
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
@@ -29,10 +33,5 @@
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.3.0",
     "webpack-merge": "^5.8.0"
-  },
-  "dependencies": {
-    "jquery": "^3.6.0",
-    "lazysizes": "^5.3.2",
-    "regenerator-runtime": "^0.13.7"
   }
 }
