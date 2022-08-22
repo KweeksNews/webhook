@@ -5,7 +5,7 @@ route = "webhook.kweeksnews.com/*"
 compatibility_date = "2022-07-23"
 
 [[kv_namespaces]]
-binding = "KV"
+binding = "CONFIG"
 id = "1ea0b7b9a160445b905f6bbc23802013"
 
 [build]

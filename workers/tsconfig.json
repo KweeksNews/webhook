@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": [
+      "ES2020"
+    ],
+    "outDir": "./dist",
+    "alwaysStrict": true,
+    "strict": true,
+    "preserveConstEnums": true,
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "types": [
+      "@cloudflare/workers-types",
+    ]
+  },
+  "include": [
+    "bindings.d.ts",
+    "src",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

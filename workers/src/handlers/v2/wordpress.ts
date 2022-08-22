@@ -1,46 +1,55 @@
-import CONFIG from '../../config/config';
+import { Config } from '../../config';
+import { TelegramBot } from '../../services';
 
-class WordPressHandler {
-  constructor({
-    telegramBot,
-  }) {
-    this.telegramBot = telegramBot;
-  }
+export class WordPressHandler {
+  private chatId!: string;
 
-  async handle(request) {
+  public constructor(private readonly telegramBot: TelegramBot) {}
+
+  public async handle(request: Request, env: Env) {
     try {
       const data = await request.json();
 
-      if (await this.executeCommand(data)) {
-        return new Response(JSON.stringify({
-          success: true,
-          data: 'Request success',
-        }), {
-          status: 200,
-          headers: CONFIG.headers,
-        });
+      if (await this.executeCommand(data, env)) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: 'Request success',
+          }),
+          {
+            status: 200,
+            headers: Config.headers,
+          },
+        );
       }
 
-      return new Response(JSON.stringify({
-        success: false,
-        data: 'Invalid request',
-      }), {
-        status: 200,
-        headers: CONFIG.headers,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: 'Invalid request',
+        }),
+        {
+          status: 200,
+          headers: Config.headers,
+        },
+      );
     } catch (error) {
-      return new Response(JSON.stringify({
-        success: false,
-        data: error.message,
-      }), {
-        status: 500,
-        headers: CONFIG.headers,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: (error as Error).message,
+        }),
+        {
+          status: 500,
+          headers: Config.headers,
+        },
+      );
     }
   }
 
-  async executeCommand(data) {
-    const chatId = JSON.parse(await KV.get('chat-id'));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async executeCommand(data: any, env: Env) {
+    const chatId = JSON.parse((await env.CONFIG.get('chat-id')) as string);
 
     switch (data.channel) {
       case 'wordpress':
@@ -60,7 +69,8 @@ class WordPressHandler {
     }
   }
 
-  async sendWordPressLog(data) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async sendWordPressLog(data: any) {
     let text = `<b>${data.event}</b>\n\n`;
 
     if (data.name) text += `<b>Name:</b> ${data.name}\n`;
@@ -75,7 +85,8 @@ class WordPressHandler {
     });
   }
 
-  async sendContentLog(data) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async sendContentLog(data: any) {
     let text = `<b>${data.event}</b>\n\n`;
     let replyMarkup = '';
 
@@ -116,10 +127,12 @@ class WordPressHandler {
     });
   }
 
-  async sendUserLog(data) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async sendUserLog(data: any) {
     let text = `<b>${data.event}</b>\n\n`;
 
-    if (data.nicename && data.username) text += `<b>User:</b> ${data.nicename} (${data.username})\n`;
+    if (data.nicename && data.username)
+      text += `<b>User:</b> ${data.nicename} (${data.username})\n`;
     if (!data.nicename && data.username) text += `<b>User:</b> ${data.username}\n`;
     if (data.email) text += `<b>Email:</b> ${data.email}\n`;
     if (data.role) text += `<b>Role:</b> ${data.role}\n`;
@@ -134,5 +147,3 @@ class WordPressHandler {
     });
   }
 }
-
-export default WordPressHandler;

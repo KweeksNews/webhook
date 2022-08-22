@@ -1,55 +1,66 @@
-import CONFIG from '../../config/config';
-import STRING from '../../config/string';
+import { Config, String } from '../../config';
+import { CloudflareApi, TelegramBot } from '../../services';
 
-class TelegramHandler {
-  constructor({
-    telegramBot,
-    cloudflareApi,
-  }) {
-    this.telegramBot = telegramBot;
-    this.cloudflareApi = cloudflareApi;
-    this.commands = {
-      start: (args) => this.start(args),
-      help: (args) => this.help(args),
-      maintenance: (args) => this.maintenance(args),
-      underattack: (args) => this.underAttack(args),
-    };
-  }
+export class TelegramHandler {
+  private readonly commands: { [key: string]: (args: string, env: Env) => Promise<void> } = {
+    start: async (args: string) => await this.start(args),
+    help: async (args: string) => await this.help(args),
+    maintenance: async (args: string, env: Env) => await this.maintenance(args, env),
+    underattack: async (args: string) => await this.underAttack(args),
+  };
+  private chatId!: string;
+  private chatType!: string;
+  private messageId!: number;
 
-  async handle(request) {
+  public constructor(
+    private readonly telegramBot: TelegramBot,
+    private readonly cloudflareApi: CloudflareApi,
+  ) {}
+
+  public async handle(request: Request, env: Env) {
     try {
       const data = await request.json();
 
-      if (await this.executeCommand(data)) {
-        return new Response(JSON.stringify({
-          success: true,
-          data: 'Request success',
-        }), {
-          status: 200,
-          headers: CONFIG.headers,
-        });
+      if (await this.executeCommand(data, env)) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: 'Request success',
+          }),
+          {
+            status: 200,
+            headers: Config.headers,
+          },
+        );
       }
 
-      return new Response(JSON.stringify({
-        success: false,
-        data: 'Invalid request',
-      }), {
-        status: 200,
-        headers: CONFIG.headers,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: 'Invalid request',
+        }),
+        {
+          status: 200,
+          headers: Config.headers,
+        },
+      );
     } catch (error) {
-      return new Response(JSON.stringify({
-        success: false,
-        data: error.message,
-      }), {
-        status: 500,
-        headers: CONFIG.headers,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: (error as Error).message,
+        }),
+        {
+          status: 500,
+          headers: Config.headers,
+        },
+      );
     }
   }
 
-  async executeCommand(data) {
-    const allowedUser = JSON.parse(await KV.get('webmaster-id'));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async executeCommand(data: any, env: Env) {
+    const allowedUser = JSON.parse((await env.CONFIG.get('webmaster-id')) as string);
 
     if (data.message?.text?.startsWith('/') && allowedUser.includes(data.message.from.id)) {
       const textArray = data.message.text.substring(1).split(' ');
@@ -64,7 +75,7 @@ class TelegramHandler {
         this.chatType = data.message.chat.type;
         this.messageId = data.message.message_id;
 
-        await this.commands[command](textArray);
+        await this.commands[command](textArray, env);
 
         return true;
       }
@@ -73,13 +84,13 @@ class TelegramHandler {
     return false;
   }
 
-  async start(args) {
+  public async start(args: string) {
     let text = '';
 
     if (args == 'help' && this.chatType == 'private') {
       await this.help('');
     } else {
-      text = STRING.start;
+      text = String.start;
     }
 
     await this.telegramBot.sendMessage({
@@ -90,18 +101,18 @@ class TelegramHandler {
     });
   }
 
-  async help(args) {
+  public async help(args: string) {
     let text = '';
     let replyMarkup = '';
 
     if (this.chatType == 'private') {
       if (args && args != '') {
-        text = STRING.helpNone(args);
+        text = String.help.none(args);
       } else {
-        text = STRING.help;
+        text = String.help.self;
       }
     } else {
-      text = STRING.helpNonPrivate;
+      text = String.help.nonPrivate;
       replyMarkup = JSON.stringify({
         inline_keyboard: [
           [
@@ -123,14 +134,14 @@ class TelegramHandler {
     });
   }
 
-  async maintenance(args) {
+  public async maintenance(args: string, env: Env) {
     let text = '';
 
     if (args == 'on') {
-      const check = await KV.get('route-id');
+      const check = await env.CONFIG.get('route-id');
 
       if (!check) {
-        text = STRING.maintenanceAlreadySet('on');
+        text = String.maintenance.alreadySet('on');
       } else {
         const data = await this.cloudflareApi.createWorkerRoute({
           pattern: '*kweeksnews.com/*',
@@ -138,38 +149,38 @@ class TelegramHandler {
         });
 
         if (data.success) {
-          await KV.put('route-id', data.result.id);
-          text = STRING.maintenanceOn;
+          await env.CONFIG.put('route-id', data.result.id);
+          text = String.maintenance.on;
         } else {
-          text = STRING.maintenanceSetFailed;
+          text = String.maintenance.setFailed;
         }
       }
     } else if (args == 'off') {
-      const check = await KV.get('route-id');
+      const check = await env.CONFIG.get('route-id');
 
       if (check) {
         const data = await this.cloudflareApi.deleteWorkerRoute({
-          routeId: check,
+          id: check,
         });
 
         if (data.success) {
-          await KV.delete('route-id');
-          text = STRING.maintenanceOff;
+          await env.CONFIG.delete('route-id');
+          text = String.maintenance.off;
         } else {
-          text = STRING.maintenanceSetFailed;
+          text = String.maintenance.setFailed;
         }
       } else {
-        text = STRING.maintenanceAlreadySet('off');
+        text = String.maintenance.alreadySet('off');
       }
     } else if (args && args != '') {
-      text = STRING.unknownValue;
+      text = String.unknownValue;
     } else {
-      const check = await KV.get('route-id');
+      const check = await env.CONFIG.get('route-id');
 
       if (check) {
-        text = STRING.maintenance('on');
+        text = String.maintenance.self('on');
       } else {
-        text = STRING.maintenance('off');
+        text = String.maintenance.self('off');
       }
     }
 
@@ -181,7 +192,7 @@ class TelegramHandler {
     });
   }
 
-  async underAttack(args) {
+  public async underAttack(args: string) {
     let text = '';
 
     if (args == 'on') {
@@ -193,12 +204,12 @@ class TelegramHandler {
         });
 
         if (data.success) {
-          text = STRING.underattackOn;
+          text = String.underattack.on;
         } else {
-          text = STRING.underattackSetFailed;
+          text = String.underattack.setFailed;
         }
       } else {
-        text = STRING.underattackAlreadySet('on');
+        text = String.underattack.alreadySet('on');
       }
     } else if (args == 'off') {
       const check = await this.cloudflareApi.getSecurityLevel();
@@ -209,22 +220,22 @@ class TelegramHandler {
         });
 
         if (data.success) {
-          text = STRING.underattackOff;
+          text = String.underattack.off;
         } else {
-          text = STRING.underattackSetFailed;
+          text = String.underattack.setFailed;
         }
       } else {
-        text = STRING.underattackAlreadySet('off');
+        text = String.underattack.alreadySet('off');
       }
     } else if (args && args != '') {
-      text = STRING.unknownValue;
+      text = String.unknownValue;
     } else {
       const check = await this.cloudflareApi.getSecurityLevel();
 
       if (check.result.value == 'under_attack') {
-        text = STRING.underattack('on');
+        text = String.underattack.self('on');
       } else {
-        text = STRING.underattack('off');
+        text = String.underattack.self('off');
       }
     }
 
@@ -236,5 +247,3 @@ class TelegramHandler {
     });
   }
 }
-
-export default TelegramHandler;

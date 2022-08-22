@@ -1,5 +1,7 @@
-const CONFIG = {
-  apiKey: API_KEY,
+import { localEnv } from '../index';
+
+export const Config = {
+  apiKey: localEnv.API_KEY,
   dateFormat: 'D MMMM YYYY, HH:mm:ss',
   headers: new Headers({
     'content-type': 'application/json',
@@ -9,14 +11,12 @@ const CONFIG = {
     url: 'https://status.kweeksnews.com',
   },
   telegram: {
-    token: TELEGRAM_TOKEN,
+    token: localEnv.TELEGRAM_TOKEN,
     username: '@kweeksbot',
   },
   cloudflare: {
-    token: CLOUDFLARE_TOKEN,
-    zoneId: CLOUDFLARE_ZONEID,
-    accountMail: CLOUDFLARE_ACCOUNTMAIL,
+    token: localEnv.CLOUDFLARE_TOKEN,
+    zoneId: localEnv.CLOUDFLARE_ZONEID,
+    accountMail: localEnv.CLOUDFLARE_ACCOUNTMAIL,
   },
 };
-
-export default CONFIG;
