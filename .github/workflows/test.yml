@@ -2,9 +2,13 @@
 name: Test
 
 on:
+  push:
+    branches:
+      - develop
   pull_request:
     branches:
-      - master
+      - main
+      - develop
 
 jobs:
   test-build:
@@ -12,26 +16,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: "1"
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v3
         with:
-          node-version: "14"
+          node-version: "16"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
 
-      - name: Cache dependencies
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd workers
+          npm ci
 
       - name: Build
         run: |
-          npm ci
           npm run build
           cd workers
-          npm ci
           npm run build
