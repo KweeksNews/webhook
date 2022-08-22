@@ -1,0 +1,110 @@
+@import url(https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: theme(colors.chinese-black.600) theme(colors.chinese-black.900);
+  }
+
+  body::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  body::-webkit-scrollbar-track {
+    @apply bg-chinese-black-900;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    @apply bg-chinese-black-700 border-2 border-solid border-chinese-black-900 rounded-xl;
+  }
+
+  body::-webkit-scrollbar-thumb:hover {
+    @apply bg-chinese-black-600;
+  }
+
+  a,
+  button {
+    @apply inline-block box-border transition-all;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a:focus,
+  button:focus {
+    @apply outline-dashed outline-2 outline-offset-4 outline-tigers-eye;
+  }
+
+  a:focus:not(:focus-visible):not(:active),
+  button:focus:not(:focus-visible):not(:active) {
+    @apply outline-none outline-offset-0;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    @apply outline-dashed outline-2 outline-offset-4 outline-tigers-eye;
+  }
+
+  a:active,
+  button:active {
+    @apply outline outline-2 outline-offset-4 outline-tigers-eye;
+  }
+}
+
+@layer components {
+  .button {
+    @apply px-3.5 py-2 bg-transparent border-solid border-2 border-tigers-eye font-semibold text-sm text-tigers-eye rounded-lg;
+  }
+
+  .button:hover,
+  .button:focus,
+  .button:focus-visible {
+    @apply bg-tigers-eye border-transparent text-chinese-black-900;
+  }
+
+  .link {
+    @apply text-tigers-eye;
+  }
+
+  .link::after {
+    @apply content-[''] relative block w-0 h-[1px] mx-auto bottom-0.5 bg-tigers-eye opacity-80 transition-all;
+  }
+
+  .link:focus,
+  .link:focus-visible,
+  .link:active {
+    @apply outline-none outline-0 outline-offset-0;
+  }
+
+  .link:hover::after,
+  .link:focus::after,
+  .link:focus-visible::after,
+  .link:active::after {
+    @apply w-full;
+  }
+
+  .menu {
+    @apply fixed flex items-center justify-center right-6 bottom-6 z-20 h-11 w-11 bg-tigers-eye border-none rounded-full md:hidden;
+  }
+
+  .navmenu {
+    @apply fixed right-4 bottom-4 z-10 p-4 bg-chinese-black-800 rounded-xl transition-transform md:hidden;
+  }
+
+  .navmenu:not(.open) {
+    @apply translate-x-full invisible;
+  }
+
+  .navlink {
+    @apply px-3.5 py-2 bg-transparent font-semibold text-base text-slate-50 rounded-lg;
+  }
+
+  .navlink:hover,
+  .navlink:focus,
+  .navlink:focus-visible {
+    @apply text-tigers-eye;
+  }
+}
