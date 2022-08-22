@@ -6,7 +6,7 @@ compatibility_date = "2022-07-23"
 
 [[kv_namespaces]]
 binding = "CONFIG"
-id = "1ea0b7b9a160445b905f6bbc23802013"
+id = "0b6dffc9af464747bccb15481db2f0ac"
 
 [build]
 command = "npm run build && cd workers && npm run build"
