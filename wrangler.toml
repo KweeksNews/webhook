@@ -1,18 +1,15 @@
 name = "webhook"
-type = "javascript"
+main = "./workers/dist/index.js"
 account_id = "aa6a672906a96132f0ffdc582c69537a"
-zone_id = "f14939370d152d28d026295478d20daa"
 route = "webhook.kweeksnews.com/*"
-kv_namespaces = [
-  { binding = "KV", id = "1ea0b7b9a160445b905f6bbc23802013" }
-]
+compatibility_date = "2022-07-23"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "1ea0b7b9a160445b905f6bbc23802013"
 
 [build]
-command = "npm ci && npm run build && cd workers && npm ci && npm run build"
-
-[build.upload]
-format = "service-worker"
+command = "npm run build && cd workers && npm run build"
 
 [site]
 bucket = "./dist"
-entry-point = "./workers"
