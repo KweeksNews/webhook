@@ -1,11 +1,10 @@
 // eslint-disable-next-line import/no-unresolved
 import manifest from '__STATIC_CONTENT_MANIFEST';
 import { Router, Request as IReq, IHTTPMethods as HttpMethods } from 'itty-router';
-import { getAssetFromKV, Options } from '@cloudflare/kv-asset-handler';
+import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 import { Config } from './config';
 import { handleFreshstatus, handleTelegram, handleWordPress } from './injection';
 import { validateKey, validateJsonBody } from './middlewares';
-import { localEnv } from './index';
 
 export interface Request extends IReq {
   validKey?: boolean;
@@ -19,22 +18,18 @@ export async function handleFetchEvent(
   return rootRouter.handle(req, env, ctx);
 }
 
-const options: Partial<Options> = {
-  ASSET_MANIFEST: JSON.parse(manifest),
-  ASSET_NAMESPACE: localEnv.__STATIC_CONTENT,
-  cacheControl: { bypassCache: true },
-};
-
 const rootRouter = Router<Request, HttpMethods>();
 const apiRouter = Router<Request, HttpMethods>({ base: '/api:key' });
 
 rootRouter
-  .get('/', (req, _, ctx) =>
+  .get('/', (req, env, ctx) =>
     getAssetFromKV(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { request: req as any, waitUntil: ctx.waitUntil },
       {
-        ...options,
+        ASSET_MANIFEST: JSON.parse(manifest),
+        ASSET_NAMESPACE: env.__STATIC_CONTENT,
+        cacheControl: { bypassCache: true },
         mapRequestToAsset: (request) =>
           new Request(`${new URL(request.url).origin}/index.html`, request),
       },
@@ -44,14 +39,23 @@ rootRouter
   .all('*', async (req, env, ctx) => {
     if (req.method == 'GET') {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return await getAssetFromKV({ request: req as any, waitUntil: ctx.waitUntil }, options);
+        return await getAssetFromKV(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          { request: req as any, waitUntil: ctx.waitUntil },
+          {
+            ASSET_MANIFEST: JSON.parse(manifest),
+            ASSET_NAMESPACE: env.__STATIC_CONTENT,
+            cacheControl: { bypassCache: true },
+          },
+        );
       } catch (e) {
         return getAssetFromKV(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { request: req as any, waitUntil: ctx.waitUntil },
           {
-            ...options,
+            ASSET_MANIFEST: JSON.parse(manifest),
+            ASSET_NAMESPACE: env.__STATIC_CONTENT,
+            cacheControl: { bypassCache: true },
             mapRequestToAsset: (request) =>
               new Request(`${new URL(request.url).origin}/404.html`, request),
           },

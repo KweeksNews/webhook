@@ -1,10 +1,10 @@
 import { Config } from '../config';
 import { Request } from '../router';
 
-export function validateKey(request: Request) {
+export function validateKey(request: Request, env: Env) {
   const { params } = request;
 
-  if (params?.key == Config.apiKey) {
+  if (params?.key == env.API_KEY) {
     request.validKey = true;
   } else {
     return new Response(
