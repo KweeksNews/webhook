@@ -7,13 +7,13 @@
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.2.0",
-    "@typescript-eslint/eslint-plugin": "5.35.1",
+    "@typescript-eslint/eslint-plugin": "5.36.1",
     "itty-router": "2.6.1",
     "moment": "2.29.4"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "3.14.1",
-    "@typescript-eslint/parser": "5.35.1",
+    "@cloudflare/workers-types": "3.16.0",
+    "@typescript-eslint/parser": "5.36.1",
     "eslint": "8.23.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
