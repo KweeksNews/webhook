@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { Config } from '../../config';
-import { TelegramBot } from '../../services';
+import { Config } from '../config';
+import { TelegramBot } from '../services';
 
 export class FreshstatusHandler {
   private chatId!: string;

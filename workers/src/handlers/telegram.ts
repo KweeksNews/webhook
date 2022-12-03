@@ -1,5 +1,5 @@
-import { Config, String } from '../../config';
-import { CloudflareApi, TelegramBot } from '../../services';
+import { Config, String } from '../config';
+import { CloudflareApi, TelegramBot } from '../services';
 
 export class TelegramHandler {
   private readonly commands: { [key: string]: (args: string, env: Env) => Promise<void> } = {

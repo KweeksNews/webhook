@@ -1,5 +1,5 @@
-import { Config } from '../../config';
-import { TelegramBot } from '../../services';
+import { Config } from '../config';
+import { TelegramBot } from '../services';
 
 export class WordPressHandler {
   private chatId!: string;

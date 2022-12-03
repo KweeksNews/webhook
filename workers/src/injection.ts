@@ -11,11 +11,7 @@ export async function handleFreshstatus(request: Request, env: Env) {
 
 export async function handleTelegram(request: Request, env: Env) {
   const telegramBot = new TelegramBot(env.TELEGRAM_TOKEN, Config.telegram.username);
-  const cloudflareApi = new CloudflareApi(
-    env.CLOUDFLARE_TOKEN,
-    env.CLOUDFLARE_ZONEID,
-    env.CLOUDFLARE_ACCOUNTMAIL,
-  );
+  const cloudflareApi = new CloudflareApi(env.CLOUDFLARE_TOKEN, env.CLOUDFLARE_ZONEID);
   const handler = new TelegramHandler(telegramBot, cloudflareApi);
 
   return handler.handle(request, env);
