@@ -80,7 +80,7 @@ export function Layout({ title, description, image, url, navLinks, manifest, chi
 
       <a
         href="#content"
-        className="button absolute top-2 -left-96 z-[-99] focus:left-2 focus:z-50 active:left-2 active:z-50"
+        className="button fixed top-2 -left-96 z-[-99] focus:left-2 focus:z-50 active:left-2 active:z-50"
       >
         Skip to Content
       </a>
