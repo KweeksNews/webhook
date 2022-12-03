@@ -1,5 +1,5 @@
 export class CloudflareApi {
-  private readonly url = `https://api.cloudflare.com/client/v4/zones/${this.zoneId}`;
+  private readonly baseUrl = `https://api.cloudflare.com/client/v4`;
   private readonly headers = new Headers({
     'content-type': 'application/json',
     'x-auth-email': this.accountMail,
@@ -14,7 +14,7 @@ export class CloudflareApi {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getSecurityLevel(): Promise<any> {
-    const url = `${this.url}/settings/security_level`;
+    const url = `${this.baseUrl}/zones/${this.zoneId}/settings/security_level`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -26,7 +26,7 @@ export class CloudflareApi {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async changeSecurityLevel({ value }: { value: string }): Promise<any> {
-    const url = `${this.url}/settings/security_level`;
+    const url = `${this.baseUrl}/zones/${this.zoneId}/settings/security_level`;
 
     const response = await fetch(url, {
       method: 'PATCH',
@@ -47,7 +47,7 @@ export class CloudflareApi {
     script: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }): Promise<any> {
-    const url = `${this.url}/workers/routes`;
+    const url = `${this.baseUrl}/zones/${this.zoneId}/workers/routes`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -63,7 +63,7 @@ export class CloudflareApi {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async deleteWorkerRoute({ id }: { id: string }): Promise<any> {
-    const url = `${this.url}/workers/routes/${id}`;
+    const url = `${this.baseUrl}/zones/${this.zoneId}/workers/routes/${id}`;
 
     const response = await fetch(url, {
       method: 'DELETE',

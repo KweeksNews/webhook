@@ -1,5 +1,5 @@
 export class TelegramBot {
-  private readonly url = `https://api.telegram.org/bot${this.token}`;
+  private readonly baseUrl = `https://api.telegram.org/bot${this.token}`;
   private readonly headers = new Headers({
     'content-type': 'application/json',
   });
@@ -38,7 +38,7 @@ export class TelegramBot {
     replyToMessageId?: number;
     replyMarkup?: string;
   }): Promise<void> {
-    const url = `${this.url}/sendMessage`;
+    const url = `${this.baseUrl}/sendMessage`;
     const body = this.composeFetchBody({
       chat_id: chatId,
       text,
@@ -67,7 +67,7 @@ export class TelegramBot {
     disableNotification?: boolean;
     messageId: number;
   }): Promise<void> {
-    const url = `${this.url}/forwardMessage`;
+    const url = `${this.baseUrl}/forwardMessage`;
     const body = this.composeFetchBody({
       chat_id: chatId,
       from_chat_id: fromChatId,
@@ -97,7 +97,7 @@ export class TelegramBot {
     disableNotification?: boolean;
     replyToMessageId?: number;
   }): Promise<void> {
-    const url = `${this.url}/sendPhoto`;
+    const url = `${this.baseUrl}/sendPhoto`;
     const body = this.composeFetchBody({
       chat_id: chatId,
       photo,
@@ -139,7 +139,7 @@ export class TelegramBot {
     disableNotification?: boolean;
     replyToMessageId?: number;
   }): Promise<void> {
-    const url = `${this.url}/sendVideo`;
+    const url = `${this.baseUrl}/sendVideo`;
     const body = this.composeFetchBody({
       chat_id: chatId,
       video,
@@ -184,7 +184,7 @@ export class TelegramBot {
     disableNotification?: boolean;
     replyToMessageId?: number;
   }): Promise<void> {
-    const url = `${this.url}/sendAnimation`;
+    const url = `${this.baseUrl}/sendAnimation`;
     const body = this.composeFetchBody({
       chat_id: chatId,
       animation,
