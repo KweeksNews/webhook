@@ -28,28 +28,33 @@
   }
 
   a,
-  button {
-    @apply inline-block box-border transition-all;
+  button,
+  .hamburger-react {
+    @apply inline-block box-border !transition-all;
     -webkit-tap-highlight-color: transparent;
   }
 
   a:focus,
-  button:focus {
+  button:focus,
+  .hamburger-react:focus {
     @apply outline-dashed outline-2 outline-offset-4 outline-tigers-eye;
   }
 
   a:focus:not(:focus-visible):not(:active),
-  button:focus:not(:focus-visible):not(:active) {
+  button:focus:not(:focus-visible):not(:active),
+  .hamburger-react:focus:not(:focus-visible):not(:active) {
     @apply outline-none outline-offset-0;
   }
 
   a:focus-visible,
-  button:focus-visible {
+  button:focus-visible,
+  .hamburger-react:focus-visible {
     @apply outline-dashed outline-2 outline-offset-4 outline-tigers-eye;
   }
 
   a:active,
-  button:active {
+  button:active,
+  .hamburger-react:active {
     @apply outline outline-2 outline-offset-4 outline-tigers-eye;
   }
 }
@@ -86,8 +91,8 @@
     @apply w-full;
   }
 
-  .menu {
-    @apply fixed flex items-center justify-center right-6 bottom-6 z-20 h-11 w-11 bg-tigers-eye border-none rounded-full md:hidden;
+  .hamburger-react {
+    @apply !fixed flex right-6 bottom-6 z-20 bg-tigers-eye border-none rounded-full md:hidden;
   }
 
   .navmenu {

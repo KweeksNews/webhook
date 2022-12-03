@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Dispatch, SetStateAction } from 'react';
-import { Menu as MenuBar, X } from 'react-feather';
+import { Squash as Hamburger } from 'hamburger-react';
 
 type Props = {
   toggled: boolean;
@@ -14,25 +14,14 @@ type Props = {
 export function Menu({ toggled, setToggled, navLinks }: Props) {
   return (
     <>
-      <button
-        className="menu"
-        aria-label="Menu"
-        onClick={(event) => {
-          setToggled(!toggled);
-          event.stopPropagation();
-        }}
-      >
-        <X
-          className={`absolute transition-all duration-100 ${
-            toggled ? 'delay-100 visible rotate-0' : 'invisible rotate-90'
-          }`}
-        />
-        <MenuBar
-          className={`absolute transition-all duration-100 ${
-            !toggled ? 'delay-100 visible rotate-0' : 'invisible -rotate-90'
-          }`}
-        />
-      </button>
+      <Hamburger
+        size={24}
+        rounded={true}
+        hideOutline={false}
+        label="Menu"
+        toggled={toggled}
+        toggle={setToggled}
+      />
 
       <aside
         aria-hidden={!toggled}
