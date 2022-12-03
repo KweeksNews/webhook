@@ -1,16 +1,11 @@
 export class CloudflareApi {
   private readonly baseUrl = `https://api.cloudflare.com/client/v4`;
   private readonly headers = new Headers({
+    authorization: `Bearer ${this.token}`,
     'content-type': 'application/json',
-    'x-auth-email': this.accountMail,
-    'x-auth-key': this.token,
   });
 
-  public constructor(
-    private readonly token: string,
-    private readonly zoneId: string,
-    private readonly accountMail: string,
-  ) {}
+  public constructor(private readonly token: string, private readonly zoneId: string) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async getSecurityLevel(): Promise<any> {
