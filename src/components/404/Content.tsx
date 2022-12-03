@@ -28,6 +28,7 @@ export function Content({ navLinks }: Props) {
     <section className="min-h-screen max-w-5xl flex flex-col justify-center items-center mx-auto md:flex-row">
       <div className="md:flex-1 text-center">
         <Image
+          className="mx-auto"
           src="/assets/images/kweeksnews-network.svg"
           alt="KweeksNews Network"
           title="KweeksNews Network"

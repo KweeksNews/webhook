@@ -43,8 +43,8 @@ export function Menu({ toggled, setToggled, navLinks }: Props) {
           {navLinks &&
             navLinks.map(({ name, url }, i) => (
               <li key={i} className="my-2">
-                <Link href={url}>
-                  <a className="navlink">{name}</a>
+                <Link href={url} className="navlink">
+                  {name}
                 </Link>
               </li>
             ))}
