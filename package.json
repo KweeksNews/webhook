@@ -1,5 +1,5 @@
 {
-  "name": "webhook",
+  "name": "@kweeksnews-network/webhook",
   "description": "KweeksNews Webhook Handlers",
   "version": "2.1.0",
   "author": "KweeksDev <admin@kweeksnews.com>",
