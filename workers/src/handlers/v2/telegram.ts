@@ -141,8 +141,6 @@ export class TelegramHandler {
       const check = await env.CONFIG.get('route-id');
 
       if (!check) {
-        text = String.maintenance.alreadySet('on');
-      } else {
         const data = await this.cloudflareApi.createWorkerRoute({
           pattern: '*kweeksnews.com/*',
           script: 'maintenance',
@@ -154,6 +152,8 @@ export class TelegramHandler {
         } else {
           text = String.maintenance.setFailed;
         }
+      } else {
+        text = String.maintenance.alreadySet('on');
       }
     } else if (args == 'off') {
       const check = await env.CONFIG.get('route-id');
