@@ -1,7 +1,7 @@
 name = "webhook"
 main = "./workers/dist/index.js"
 account_id = "aa6a672906a96132f0ffdc582c69537a"
-route = "webhook.kweeksnews.com/*"
+workers_dev = false
 compatibility_date = "2022-07-23"
 
 [[kv_namespaces]]
