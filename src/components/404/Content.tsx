@@ -40,7 +40,7 @@ export function Content({ navLinks }: Props) {
           <b>404.</b> Tidak Ditemukan.
         </p>
         <p className="text-base text-white mt-5">
-          Kembali ke beranda dalam <b>{timeLeft}</b>.
+          Kembali ke beranda dalam <b>{timeLeft} detik</b>.
         </p>
 
         <nav className="hidden mx-auto mt-12 md:flex md:justify-center">
