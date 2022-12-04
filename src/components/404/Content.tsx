@@ -16,8 +16,8 @@ export function Content({ navLinks }: Props) {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (timeLeft == 0) {
-        router.push('/');
         clearTimeout(timer);
+        router.replace('/');
       } else {
         setTimeLeft(timeLeft - 1);
       }
