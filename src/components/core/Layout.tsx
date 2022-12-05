@@ -94,6 +94,12 @@ export function Layout({ title, description, image, url, navLinks, manifest, chi
         </main>
         <Footer />
       </div>
+
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "62d298fe15df42498ee3f5f5b391d8c5"}'
+      />
     </>
   );
 }
