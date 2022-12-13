@@ -8,7 +8,7 @@
     "lint": "next lint",
     "format": "next lint --fix",
     "dev": "next dev",
-    "build": "next build && next export  -o dist/",
+    "build": "next build && next export -o dist/",
     "start": "next start"
   },
   "dependencies": {
