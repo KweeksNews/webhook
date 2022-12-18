@@ -52,7 +52,7 @@ export class AppRouter {
               },
             );
           } catch (e) {
-            return getAssetFromKV(
+            const response = await getAssetFromKV(
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               { request: req as any, waitUntil: ctx.waitUntil },
               {
@@ -63,15 +63,17 @@ export class AppRouter {
                   new Request(`${new URL(request.url).origin}/404.html`, request),
               },
             );
+
+            return new Response(response.body, { status: 404, headers: response.headers });
           }
         } else {
           return new Response(
             JSON.stringify({
               success: false,
-              data: 'Invalid request',
+              data: 'Not found',
             }),
             {
-              status: 200,
+              status: 404,
               headers: Config.headers,
             },
           );
