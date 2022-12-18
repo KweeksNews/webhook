@@ -87,7 +87,7 @@ export class AppRouter {
         return new Response(
           JSON.stringify({
             success: false,
-            data: 'Not found',
+            message: 'Not found',
           }),
           {
             status: 404,

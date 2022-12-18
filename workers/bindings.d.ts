@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 declare interface Env {
   __STATIC_CONTENT: KVNamespace;
   CONFIG: KVNamespace;
@@ -13,3 +11,16 @@ declare module '__STATIC_CONTENT_MANIFEST' {
   const manifest: string;
   export default manifest;
 }
+
+declare type ConfigApiKey = string[];
+
+declare type ConfigChatId = {
+  server: number;
+  wordpress: number;
+  user: number;
+  content: number;
+};
+
+declare type ConfigWebmasterId = number[];
+
+declare type ConfigRouteId = string;

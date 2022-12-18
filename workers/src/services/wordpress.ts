@@ -1,4 +1,5 @@
 import { TelegramBotService } from './telegram-bot';
+import { SendWordPressNotificationData, SendWordPressNotificationResBody } from '../types';
 
 export class WordPressService {
   public constructor(
@@ -6,27 +7,30 @@ export class WordPressService {
     private readonly telegramBotService: TelegramBotService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendNotification(data: any) {
-    const chatId = JSON.parse((await this.env.CONFIG.get('chat-id')) as string);
+  public async sendNotification(
+    data: SendWordPressNotificationData,
+  ): Promise<SendWordPressNotificationResBody> {
+    const chatId = JSON.parse((await this.env.CONFIG.get('chat_id')) as string) as ConfigChatId;
 
     switch (data.channel) {
       case 'wordpress':
-        await this.sendWordPressLog(data, chatId.wordpress);
-        return true;
+        return await this.sendWordPressLog(data, chatId.wordpress);
       case 'content':
-        await this.sendContentLog(data, chatId.content);
-        return true;
+        return await this.sendContentLog(data, chatId.content);
       case 'user':
-        await this.sendUserLog(data, chatId.user);
-        return true;
+        return await this.sendUserLog(data, chatId.user);
       default:
-        return false;
+        return {
+          success: false,
+          message: 'Invalid notification channel',
+        };
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendWordPressLog(data: any, chatId: string) {
+  private async sendWordPressLog(
+    data: SendWordPressNotificationData,
+    chatId: number,
+  ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
 
     if (data.name) text += `<b>Name:</b> ${data.name}\n`;
@@ -34,17 +38,34 @@ export class WordPressService {
     if (data.from) text += `<b>From:</b> ${data.from}\n`;
     if (data.to) text += `<b>To:</b> ${data.to}\n`;
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
+      parse_mode: 'HTML',
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendContentLog(data: any, chatId: string) {
+  private async sendContentLog(
+    data: SendWordPressNotificationData,
+    chatId: number,
+  ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
-    let replyMarkup = '';
+    let replyMarkup;
 
     if (data.title) text += `<b>Title:</b> ${data.title}\n`;
     if (data.post) text += `<b>Post:</b> ${data.post}\n`;
@@ -63,7 +84,7 @@ export class WordPressService {
     if (data.ipaddress) text += `<b>IP Address:</b> ${data.ipaddress}\n`;
     if (data.url) text += `<b>URL:</b> <a href="${data.url}">click here</a>\n`;
     if (data.homeurl && data.id) {
-      replyMarkup = JSON.stringify({
+      replyMarkup = {
         inline_keyboard: [
           [
             {
@@ -72,19 +93,36 @@ export class WordPressService {
             },
           ],
         ],
-      });
+      };
     }
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
-      replyMarkup,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendUserLog(data: any, chatId: string) {
+  private async sendUserLog(
+    data: SendWordPressNotificationData,
+    chatId: number,
+  ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
 
     if (data.nicename && data.username)
@@ -96,10 +134,25 @@ export class WordPressService {
     if (data.newrole) text += `<b>New Role:</b> ${data.newrole}\n`;
     if (data.ipaddress) text += `<b>IP Address:</b> ${data.ipaddress}\n`;
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
+      parse_mode: 'HTML',
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 }

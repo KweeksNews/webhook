@@ -1,5 +1,13 @@
 import moment from 'moment';
 import { Config } from '../config';
+import {
+  IncidentNoteCreatedNotificationData,
+  IncidentOpenNotificationData,
+  MaintenanceNoteCreatedNotificationData,
+  MaintenancePlannedNotificationData,
+  SendFreshstatusNotificationData,
+  SendFreshstatusNotificationResBody,
+} from '../types';
 import { TelegramBotService } from './telegram-bot';
 
 export class FreshstatusService {
@@ -8,49 +16,69 @@ export class FreshstatusService {
     private readonly telegramBotService: TelegramBotService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendNotification(data: any) {
-    const chatId = JSON.parse((await this.env.CONFIG.get('chat-id')) as string).server;
+  public async sendNotification(
+    data: SendFreshstatusNotificationData,
+  ): Promise<SendFreshstatusNotificationResBody> {
+    const chatId = JSON.parse((await this.env.CONFIG.get('chat_id')) as string) as ConfigChatId;
 
-    switch (data.event_data?.event_type) {
+    switch (data.event_data.event_type) {
       case 'INCIDENT_OPEN':
-        await this.sendIncidentOpenedLog(data, chatId);
-        return true;
+        return await this.sendIncidentOpenedLog(
+          data as IncidentOpenNotificationData,
+          chatId.server,
+        );
       case 'INCIDENT_NOTE_CREATE':
-        if (data.incident_status === 'Closed') {
-          await this.sendIncidentClosedLog(data, chatId);
+        if ((data as IncidentNoteCreatedNotificationData).incident_status === 'Closed') {
+          return await this.sendIncidentClosedLog(
+            data as IncidentNoteCreatedNotificationData,
+            chatId.server,
+          );
         } else {
-          await this.sendIncidentNoteCreatedLog(data, chatId);
+          return await this.sendIncidentNoteCreatedLog(
+            data as IncidentNoteCreatedNotificationData,
+            chatId.server,
+          );
         }
-        return true;
       case 'MAINTENANCE_PLANNED':
-        await this.sendMaintenancePlannedLog(data, chatId);
-        return true;
+        return await this.sendMaintenancePlannedLog(
+          data as MaintenancePlannedNotificationData,
+          chatId.server,
+        );
       case 'MAINTENANCE_NOTE_CREATE':
-        if (data.incident_status === 'Closed') {
-          await this.sendMaintenanceClosedLog(data, chatId);
+        if ((data as MaintenanceNoteCreatedNotificationData).incident_status === 'Closed') {
+          return await this.sendMaintenanceClosedLog(
+            data as MaintenanceNoteCreatedNotificationData,
+            chatId.server,
+          );
         } else {
-          await this.sendMaintenanceNoteCreatedLog(data, chatId);
+          return await this.sendMaintenanceNoteCreatedLog(
+            data as MaintenanceNoteCreatedNotificationData,
+            chatId.server,
+          );
         }
-        return true;
       default:
-        return false;
+        return {
+          success: false,
+          message: 'Invalid event type',
+        };
     }
   }
 
-  private formatDate(date: string) {
+  private formatDate(date: string): string {
     return moment(date).format(Config.dateFormat);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendIncidentOpenedLog(data: any, chatId: string) {
+  private async sendIncidentOpenedLog(
+    data: IncidentOpenNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#INCIDENTOPENED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Description:</b> ${data.description}\n` +
       `<b>Start Time:</b> ${this.formatDate(data.start_time)}\n` +
       `<b>Affected Services:</b> ${data.affected_services}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -59,23 +87,40 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendIncidentClosedLog(data: any, chatId: string) {
+  private async sendIncidentClosedLog(
+    data: IncidentNoteCreatedNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#INCIDENTCLOSED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Note:</b> ${data.message}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -84,23 +129,40 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendIncidentNoteCreatedLog(data: any, chatId: string) {
+  private async sendIncidentNoteCreatedLog(
+    data: IncidentNoteCreatedNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#INCIDENTNOTECREATED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Note:</b> ${data.message}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -109,26 +171,43 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendMaintenancePlannedLog(data: any, chatId: string) {
+  private async sendMaintenancePlannedLog(
+    data: MaintenancePlannedNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#MAINTENANCEPLANNED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Description:</b> ${data.description}\n` +
       `<b>Scheduled Start Time:</b> ${this.formatDate(data.scheduled_start_time)}\n` +
       `<b>Scheduled End Time:</b> ${this.formatDate(data.scheduled_end_time)}\n` +
       `<b>Affected Services:</b> ${data.affected_services}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -137,23 +216,40 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendMaintenanceClosedLog(data: any, chatId: string) {
+  private async sendMaintenanceClosedLog(
+    data: MaintenanceNoteCreatedNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#MAINTENANCECLOSED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Note:</b> ${data.message}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -162,23 +258,40 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendMaintenanceNoteCreatedLog(data: any, chatId: string) {
+  private async sendMaintenanceNoteCreatedLog(
+    data: MaintenanceNoteCreatedNotificationData,
+    chatId: number,
+  ): Promise<SendFreshstatusNotificationResBody> {
     const text =
       '<b>#MAINTENANCENOTECREATED</b>\n\n' +
-      `<b>Name:</b> ${data.title}\n` +
+      `<b>Title</b> ${data.title}\n` +
       `<b>Note:</b> ${data.message}`;
-    const replyMarkup = JSON.stringify({
+    const replyMarkup = {
       inline_keyboard: [
         [
           {
@@ -187,13 +300,28 @@ export class FreshstatusService {
           },
         ],
       ],
+    };
+
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup,
     });
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
-      text,
-      parseMode: 'HTML',
-      replyMarkup,
-    });
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 }

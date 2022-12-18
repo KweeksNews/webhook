@@ -3,7 +3,7 @@ import { Request } from '../types';
 
 export async function validateJsonBody(request: Request) {
   try {
-    const { headers } = request;
+    const headers = request.headers as Headers;
 
     if (headers.get('content-type')?.includes('application/json')) {
       await request.json();
@@ -23,7 +23,7 @@ export async function validateJsonBody(request: Request) {
     return new Response(
       JSON.stringify({
         success: false,
-        data: (error as Error).message,
+        data: 'Invalid request',
       }),
       {
         status: 400,

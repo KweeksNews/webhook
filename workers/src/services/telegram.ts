@@ -1,24 +1,19 @@
 import { String } from '../config';
+import {
+  CommandList,
+  ExecuteCommandData,
+  ExecuteCommandParams,
+  ExecuteCommandResBody,
+} from '../types';
 import { CloudflareApiService } from './cloudflare-api';
 import { TelegramBotService } from './telegram-bot';
 
 export class TelegramService {
-  private readonly commands: {
-    [key: string]: (
-      args: string,
-      chatId: number,
-      chatType: string,
-      messageId: number,
-    ) => Promise<void>;
-  } = {
-    start: async (args: string, chatId: number, chatType: string, messageId: number) =>
-      await this.start(args, chatId, chatType, messageId),
-    help: async (args: string, chatId: number, chatType: string, messageId: number) =>
-      await this.help(args, chatId, chatType, messageId),
-    maintenance: async (args: string, chatId: number, chatType: string, messageId: number) =>
-      await this.maintenance(args, chatId, chatType, messageId),
-    underattack: async (args: string, chatId: number, chatType: string, messageId: number) =>
-      await this.underAttack(args, chatId, chatType, messageId),
+  private readonly commands: CommandList = {
+    start: async (params) => await this.start(params),
+    help: async (params) => await this.help(params),
+    maintenance: async (params) => await this.maintenance(params),
+    underattack: async (params) => await this.underAttack(params),
   };
 
   public constructor(
@@ -27,63 +22,100 @@ export class TelegramService {
     private readonly telegramBotService: TelegramBotService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async executeCommand(data: any) {
-    const allowedUser = JSON.parse((await this.env.CONFIG.get('webmaster-id')) as string);
+  public async executeCommand(data: ExecuteCommandData): Promise<ExecuteCommandResBody> {
+    const allowedUser = JSON.parse(
+      (await this.env.CONFIG.get('webmaster_id')) as string,
+    ) as ConfigWebmasterId;
 
-    if (data.message?.text?.startsWith('/') && allowedUser.includes(data.message.from.id)) {
-      const textArray = data.message.text.substring(1).split(' ');
-      let command = textArray.shift();
+    if (
+      data.message &&
+      data.message.text &&
+      data.message.text.startsWith('/') &&
+      allowedUser.includes(data.message.from?.id as number)
+    ) {
+      const textArray = data.message.text.substring(1).match(/[^ ]+/g);
+      let command = textArray?.shift();
 
-      if (command.endsWith(`${this.telegramBotService.username}`)) {
+      if (command?.endsWith(`${this.telegramBotService.username}`)) {
         command = command.substring(0, command.length - this.telegramBotService.username.length);
       }
 
-      if (Object.keys(this.commands).includes(command)) {
-        await this.commands[command](
-          textArray,
-          data.message.chat.id,
-          data.message.chat.type,
-          data.message.message_id,
-        );
-
-        return true;
+      if (Object.keys(this.commands).includes(command as string)) {
+        return await this.commands[command as string]({
+          args: textArray || [],
+          chatId: data.message.chat.id,
+          chatType: data.message.chat.type,
+          messageId: data.message.message_id,
+        });
       }
     }
 
-    return false;
+    return {
+      success: false,
+      message: 'Command not found',
+    };
   }
 
-  private async start(args: string, chatId: number, chatType: string, messageId: number) {
-    let text = '';
+  private async start({
+    args,
+    chatId,
+    chatType,
+    messageId,
+  }: ExecuteCommandParams): Promise<ExecuteCommandResBody> {
+    let text;
 
-    if (args === 'help' && chatType === 'private') {
-      return await this.help('', chatId, chatType, messageId);
+    if (args[0] === 'help' && chatType === 'private') {
+      return await this.help({
+        args: [],
+        chatId,
+        chatType,
+        messageId,
+      });
     } else {
       text = String.start;
     }
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
-      replyToMessageId: messageId,
+      parse_mode: 'HTML',
+      reply_to_message_id: messageId,
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  private async help(args: string, chatId: number, chatType: string, messageId: number) {
-    let text = '';
-    let replyMarkup = '';
+  private async help({
+    args,
+    chatId,
+    chatType,
+    messageId,
+  }: ExecuteCommandParams): Promise<ExecuteCommandResBody> {
+    let text;
+    let replyMarkup;
 
     if (chatType === 'private') {
-      if (args && args != '') {
-        text = String.help.none(args);
+      if (args) {
+        text = String.help.none(args.join(' '));
       } else {
         text = String.help.self;
       }
     } else {
       text = String.help.nonPrivate;
-      replyMarkup = JSON.stringify({
+      replyMarkup = {
         inline_keyboard: [
           [
             {
@@ -92,23 +124,42 @@ export class TelegramService {
             },
           ],
         ],
-      });
+      };
     }
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
-      replyToMessageId: messageId,
-      replyMarkup,
+      parse_mode: 'HTML',
+      reply_to_message_id: messageId,
+      reply_markup: replyMarkup,
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  private async maintenance(args: string, chatId: number, _: string, messageId: number) {
-    let text = '';
+  private async maintenance({
+    args,
+    chatId,
+    messageId,
+  }: ExecuteCommandParams): Promise<ExecuteCommandResBody> {
+    let text;
 
-    if (args === 'on') {
-      const check = await this.env.CONFIG.get('route-id');
+    if (args[0] === 'on') {
+      const check = (await this.env.CONFIG.get('route_id')) as ConfigRouteId;
 
       if (!check) {
         const data = await this.cloudflareApiService.createWorkerRoute({
@@ -117,7 +168,7 @@ export class TelegramService {
         });
 
         if (data.success) {
-          await this.env.CONFIG.put('route-id', data.result.id);
+          await this.env.CONFIG.put('route_id', data.result.id);
           text = String.maintenance.on;
         } else {
           text = String.maintenance.setFailed;
@@ -125,8 +176,8 @@ export class TelegramService {
       } else {
         text = String.maintenance.alreadySet('on');
       }
-    } else if (args === 'off') {
-      const check = await this.env.CONFIG.get('route-id');
+    } else if (args[0] === 'off') {
+      const check = (await this.env.CONFIG.get('route_id')) as ConfigRouteId;
 
       if (check) {
         const data = await this.cloudflareApiService.deleteWorkerRoute({
@@ -134,7 +185,7 @@ export class TelegramService {
         });
 
         if (data.success) {
-          await this.env.CONFIG.delete('route-id');
+          await this.env.CONFIG.delete('route_id');
           text = String.maintenance.off;
         } else {
           text = String.maintenance.setFailed;
@@ -142,10 +193,10 @@ export class TelegramService {
       } else {
         text = String.maintenance.alreadySet('off');
       }
-    } else if (args && args != '') {
+    } else if (args) {
       text = String.unknownValue;
     } else {
-      const check = await this.env.CONFIG.get('route-id');
+      const check = (await this.env.CONFIG.get('route_id')) as ConfigRouteId;
 
       if (check) {
         text = String.maintenance.self('on');
@@ -154,18 +205,37 @@ export class TelegramService {
       }
     }
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
-      replyToMessageId: messageId,
+      parse_mode: 'HTML',
+      reply_to_message_id: messageId,
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 
-  private async underAttack(args: string, chatId: number, _: string, messageId: number) {
-    let text = '';
+  private async underAttack({
+    args,
+    chatId,
+    messageId,
+  }: ExecuteCommandParams): Promise<ExecuteCommandResBody> {
+    let text;
 
-    if (args === 'on') {
+    if (args[0] === 'on') {
       const check = await this.cloudflareApiService.getSecurityLevel();
 
       if (check.result.value != 'under_attack') {
@@ -181,7 +251,7 @@ export class TelegramService {
       } else {
         text = String.underattack.alreadySet('on');
       }
-    } else if (args === 'off') {
+    } else if (args[0] === 'off') {
       const check = await this.cloudflareApiService.getSecurityLevel();
 
       if (check.result.value === 'under_attack') {
@@ -197,7 +267,7 @@ export class TelegramService {
       } else {
         text = String.underattack.alreadySet('off');
       }
-    } else if (args && args != '') {
+    } else if (args) {
       text = String.unknownValue;
     } else {
       const check = await this.cloudflareApiService.getSecurityLevel();
@@ -209,11 +279,26 @@ export class TelegramService {
       }
     }
 
-    await this.telegramBotService.sendMessage({
-      chatId: chatId,
+    const response = await this.telegramBotService.sendMessage({
+      chat_id: chatId,
       text,
-      parseMode: 'HTML',
-      replyToMessageId: messageId,
+      parse_mode: 'HTML',
+      reply_to_message_id: messageId,
     });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: 'Notification sent',
+        data: {
+          telegram: response.result,
+        },
+      };
+    } else {
+      return {
+        success: false,
+        message: response.description,
+      };
+    }
   }
 }

@@ -1,11 +1,18 @@
 import { IRequest, Route, RouterType } from 'itty-router';
 
-export interface CustomRouter extends RouterType {
+export * from './cloudflare-api';
+export * from './telegram-bot';
+
+export * from './freshstatus';
+export * from './wordpress';
+export * from './telegram';
+
+export type CustomRouter = RouterType & {
   all: Route;
   get: Route;
   post: Route;
-}
+};
 
-export interface Request extends IRequest {
+export type Request = IRequest & {
   validKey?: boolean;
-}
+};

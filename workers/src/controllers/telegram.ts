@@ -9,34 +9,17 @@ export class TelegramController {
     try {
       const data = await request.json();
 
-      if (await this.telegramService.executeCommand(data)) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: 'Request success',
-          }),
-          {
-            status: 200,
-            headers: Config.headers,
-          },
-        );
-      }
+      const body = await this.telegramService.executeCommand(data);
 
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: 'Invalid request',
-        }),
-        {
-          status: 200,
-          headers: Config.headers,
-        },
-      );
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: Config.headers,
+      });
     } catch (error) {
       return new Response(
         JSON.stringify({
           success: false,
-          data: (error as Error).message,
+          message: 'Internal server error',
         }),
         {
           status: 500,

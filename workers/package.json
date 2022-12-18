@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.2.0",
+    "@grammyjs/types": "2.10.3",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "itty-router": "3.0.8",
     "moment": "2.29.4"
