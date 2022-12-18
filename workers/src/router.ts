@@ -66,19 +66,19 @@ export class AppRouter {
 
     this.apiRouter
       .post<CustomRouter>(
-        '/v2/freshstatus',
+        '/freshstatus',
         validateKey,
         validateJsonBody,
         freshstatusController.sendNotification,
       )
       .post<CustomRouter>(
-        '/v2/telegram',
+        '/telegram',
         validateKey,
         validateJsonBody,
         telegramController.executeCommand,
       )
       .post<CustomRouter>(
-        '/v2/wordpress',
+        '/wordpress',
         validateKey,
         validateJsonBody,
         wordPressController.sendNotification,
