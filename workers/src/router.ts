@@ -1,22 +1,19 @@
 // eslint-disable-next-line import/no-unresolved
 import manifest from '__STATIC_CONTENT_MANIFEST';
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
-import { Router, Request as IReq, IHTTPMethods as HttpMethods } from 'itty-router';
+import { Router } from 'itty-router';
 import { Config } from './config';
 import { AppInjection } from './injection';
 import { validateKey, validateJsonBody } from './middlewares';
-
-export interface Request extends IReq {
-  validKey?: boolean;
-}
+import { CustomRouter, Request } from './types';
 
 export class AppRouter {
-  private readonly rootRouter: Router;
-  private readonly apiRouter: Router;
+  private readonly rootRouter: CustomRouter;
+  private readonly apiRouter: CustomRouter;
 
   public constructor(private readonly env: Env) {
-    this.rootRouter = Router<Request, HttpMethods>();
-    this.apiRouter = Router<Request, HttpMethods>({ base: '/api' });
+    this.rootRouter = <CustomRouter>Router();
+    this.apiRouter = <CustomRouter>Router({ base: '/api' });
 
     const injection = new AppInjection(this.env);
 
@@ -25,7 +22,7 @@ export class AppRouter {
     const wordPressController = injection.wordPressController;
 
     this.rootRouter
-      .get('/', (req, env, ctx) =>
+      .get<CustomRouter>('/', (req, env, ctx) =>
         getAssetFromKV(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { request: req as any, waitUntil: ctx.waitUntil },
@@ -38,8 +35,8 @@ export class AppRouter {
           },
         ),
       )
-      .all('/api:key/*', validateKey, this.apiRouter.handle)
-      .all('*', async (req, env, ctx) => {
+      .all<CustomRouter>('/api:key/*', validateKey, this.apiRouter.handle)
+      .all<CustomRouter>('*', async (req, env, ctx) => {
         try {
           return await getAssetFromKV(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,10 +65,14 @@ export class AppRouter {
       });
 
     this.apiRouter
-      .post('/v2/freshstatus', validateJsonBody, freshstatusController.sendNotification)
-      .post('/v2/telegram', validateJsonBody, telegramController.executeCommand)
-      .post('/v2/wordpress', validateJsonBody, wordPressController.sendNotification)
-      .all('*', async () => {
+      .post<CustomRouter>(
+        '/v2/freshstatus',
+        validateJsonBody,
+        freshstatusController.sendNotification,
+      )
+      .post<CustomRouter>('/v2/telegram', validateJsonBody, telegramController.executeCommand)
+      .post<CustomRouter>('/v2/wordpress', validateJsonBody, wordPressController.sendNotification)
+      .all<CustomRouter>('*', async () => {
         return new Response(
           JSON.stringify({
             success: false,

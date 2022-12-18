@@ -1,5 +1,5 @@
 import { Config } from '../config';
-import { Request } from '../router';
+import { Request } from '../types';
 
 export function validateKey(request: Request, env: Env) {
   const { params } = request;

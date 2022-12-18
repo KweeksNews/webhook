@@ -1,5 +1,6 @@
 import { Config } from '../config';
 import { TelegramService } from '../services';
+import { Request } from '../types';
 
 export class TelegramController {
   public constructor(private readonly telegramService: TelegramService) {}

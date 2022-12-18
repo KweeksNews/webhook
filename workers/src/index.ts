@@ -1,4 +1,5 @@
 import { AppRouter } from './router';
+import { Request } from './types';
 
 export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext) {

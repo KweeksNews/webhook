@@ -1,4 +1,5 @@
 import { Config } from '../config';
+import { Request } from '../types';
 
 export async function validateJsonBody(request: Request) {
   try {
