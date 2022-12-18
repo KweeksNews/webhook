@@ -35,7 +35,7 @@ export class AppRouter {
           },
         ),
       )
-      .all<CustomRouter>('/api:key/*', validateKey, this.apiRouter.handle)
+      .all<CustomRouter>('/api/*', this.apiRouter.handle)
       .all<CustomRouter>('*', async (req, env, ctx) => {
         try {
           return await getAssetFromKV(
@@ -67,11 +67,22 @@ export class AppRouter {
     this.apiRouter
       .post<CustomRouter>(
         '/v2/freshstatus',
+        validateKey,
         validateJsonBody,
         freshstatusController.sendNotification,
       )
-      .post<CustomRouter>('/v2/telegram', validateJsonBody, telegramController.executeCommand)
-      .post<CustomRouter>('/v2/wordpress', validateJsonBody, wordPressController.sendNotification)
+      .post<CustomRouter>(
+        '/v2/telegram',
+        validateKey,
+        validateJsonBody,
+        telegramController.executeCommand,
+      )
+      .post<CustomRouter>(
+        '/v2/wordpress',
+        validateKey,
+        validateJsonBody,
+        wordPressController.sendNotification,
+      )
       .all<CustomRouter>('*', async () => {
         return new Response(
           JSON.stringify({
