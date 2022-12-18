@@ -13,20 +13,20 @@ export type SendWordPressNotificationData = {
   author?: string;
   email?: string;
   comment?: string;
-  editedby?: string;
-  deletedby?: string;
+  edited_by?: string;
+  deleted_by?: string;
   via?: string;
   status?: string;
-  useragent?: string;
-  ipaddress?: string;
+  user_agent?: string;
+  ip_address?: string;
   url?: string;
-  homeurl?: string;
+  home_url?: string;
   id?: string;
   nicename?: string;
   username?: string;
   role?: string;
-  oldrole?: string;
-  newrole?: string;
+  old_role?: string;
+  new_role?: string;
 };
 
 export type SendWordPressNotificationResBody = {
