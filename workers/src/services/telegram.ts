@@ -85,7 +85,7 @@ export class TelegramService {
     if (response.ok) {
       return {
         success: true,
-        message: 'Notification sent',
+        message: 'Command executed',
         data: {
           telegram: response.result,
         },
@@ -138,7 +138,7 @@ export class TelegramService {
     if (response.ok) {
       return {
         success: true,
-        message: 'Notification sent',
+        message: 'Command executed',
         data: {
           telegram: response.result,
         },
@@ -215,7 +215,7 @@ export class TelegramService {
     if (response.ok) {
       return {
         success: true,
-        message: 'Notification sent',
+        message: 'Command executed',
         data: {
           telegram: response.result,
         },
@@ -289,7 +289,7 @@ export class TelegramService {
     if (response.ok) {
       return {
         success: true,
-        message: 'Notification sent',
+        message: 'Command executed',
         data: {
           telegram: response.result,
         },
