@@ -6,14 +6,11 @@ export async function validateKey(request: Request, env: Env) {
   const apiKey = JSON.parse((await env.CONFIG.get('api_key')) as string) as ConfigApiKey;
   let requestApiKey = '';
 
-  // eslint-disable-next-line no-prototype-builtins
-  if (headers.hasOwnProperty('x-api-key')) {
+  if (headers.get('x-api-key')) {
     requestApiKey = headers.get('x-api-key') as string;
-    // eslint-disable-next-line no-prototype-builtins
-  } else if (headers.hasOwnProperty('php-auth-pw')) {
+  } else if (headers.get('php-auth-pw')) {
     requestApiKey = headers.get('php-auth-pw') as string;
-    // eslint-disable-next-line no-prototype-builtins
-  } else if (headers.hasOwnProperty('x-telegram-bot-api-secret-token')) {
+  } else if (headers.get('x-telegram-bot-api-secret-token')) {
     requestApiKey = headers.get('x-telegram-bot-api-secret-token') as string;
   }
 
