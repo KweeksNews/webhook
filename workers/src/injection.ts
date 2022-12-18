@@ -1,25 +1,31 @@
 import { Config } from './config';
-import { FreshstatusHandler, TelegramHandler, WordPressHandler } from './handlers';
-import { CloudflareApi, TelegramBot } from './services';
+import { FreshstatusController, TelegramController, WordPressController } from './controllers';
+import {
+  CloudflareApiService,
+  FreshstatusService,
+  TelegramBotService,
+  TelegramService,
+  WordPressService,
+} from './services';
 
-export async function handleFreshstatus(request: Request, env: Env) {
-  const telegramBot = new TelegramBot(env.TELEGRAM_TOKEN, Config.telegram.username);
-  const handler = new FreshstatusHandler(telegramBot);
+export class AppInjection {
+  public readonly freshstatusController: FreshstatusController;
+  public readonly telegramController: TelegramController;
+  public readonly wordPressController: WordPressController;
 
-  return handler.handle(request, env);
-}
+  public constructor(private readonly env: Env) {
+    const cloudflareApiService = new CloudflareApiService(
+      env.CLOUDFLARE_TOKEN,
+      env.CLOUDFLARE_ZONEID,
+    );
+    const telegramBotService = new TelegramBotService(env.TELEGRAM_TOKEN, Config.telegram.username);
 
-export async function handleTelegram(request: Request, env: Env) {
-  const telegramBot = new TelegramBot(env.TELEGRAM_TOKEN, Config.telegram.username);
-  const cloudflareApi = new CloudflareApi(env.CLOUDFLARE_TOKEN, env.CLOUDFLARE_ZONEID);
-  const handler = new TelegramHandler(telegramBot, cloudflareApi);
+    const freshstatusService = new FreshstatusService(env, telegramBotService);
+    const telegramService = new TelegramService(env, cloudflareApiService, telegramBotService);
+    const wordPressService = new WordPressService(env, telegramBotService);
 
-  return handler.handle(request, env);
-}
-
-export async function handleWordPress(request: Request, env: Env) {
-  const telegramBot = new TelegramBot(env.TELEGRAM_TOKEN, Config.telegram.username);
-  const handler = new WordPressHandler(telegramBot);
-
-  return handler.handle(request, env);
+    this.freshstatusController = new FreshstatusController(freshstatusService);
+    this.telegramController = new TelegramController(telegramService);
+    this.wordPressController = new WordPressController(wordPressService);
+  }
 }

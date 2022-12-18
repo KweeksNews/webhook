@@ -1,55 +1,32 @@
 // eslint-disable-next-line import/no-unresolved
 import manifest from '__STATIC_CONTENT_MANIFEST';
-import { Router, Request as IReq, IHTTPMethods as HttpMethods } from 'itty-router';
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
+import { Router, Request as IReq, IHTTPMethods as HttpMethods } from 'itty-router';
 import { Config } from './config';
-import { handleFreshstatus, handleTelegram, handleWordPress } from './injection';
+import { AppInjection } from './injection';
 import { validateKey, validateJsonBody } from './middlewares';
 
 export interface Request extends IReq {
   validKey?: boolean;
 }
 
-export async function handleFetchEvent(
-  req: Request,
-  env: Env,
-  ctx: ExecutionContext,
-): Promise<Response> {
-  return rootRouter.handle(req, env, ctx);
-}
+export class AppRouter {
+  private readonly rootRouter: Router;
+  private readonly apiRouter: Router;
 
-const rootRouter = Router<Request, HttpMethods>();
-const apiRouter = Router<Request, HttpMethods>({ base: '/api:key' });
+  public constructor(private readonly env: Env) {
+    this.rootRouter = Router<Request, HttpMethods>();
+    this.apiRouter = Router<Request, HttpMethods>({ base: '/api' });
 
-rootRouter
-  .get('/', (req, env, ctx) =>
-    getAssetFromKV(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { request: req as any, waitUntil: ctx.waitUntil },
-      {
-        ASSET_MANIFEST: JSON.parse(manifest),
-        ASSET_NAMESPACE: env.__STATIC_CONTENT,
-        cacheControl: { bypassCache: true },
-        mapRequestToAsset: (request) =>
-          new Request(`${new URL(request.url).origin}/index.html`, request),
-      },
-    ),
-  )
-  .all('/api:key/*', validateKey, apiRouter.handle)
-  .all('*', async (req, env, ctx) => {
-    if (req.method == 'GET') {
-      try {
-        return await getAssetFromKV(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          { request: req as any, waitUntil: ctx.waitUntil },
-          {
-            ASSET_MANIFEST: JSON.parse(manifest),
-            ASSET_NAMESPACE: env.__STATIC_CONTENT,
-            cacheControl: { bypassCache: true },
-          },
-        );
-      } catch (e) {
-        return getAssetFromKV(
+    const injection = new AppInjection(this.env);
+
+    const freshstatusController = injection.freshstatusController;
+    const telegramController = injection.telegramController;
+    const wordPressController = injection.wordPressController;
+
+    this.rootRouter
+      .get('/', (req, env, ctx) =>
+        getAssetFromKV(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { request: req as any, waitUntil: ctx.waitUntil },
           {
@@ -57,25 +34,57 @@ rootRouter
             ASSET_NAMESPACE: env.__STATIC_CONTENT,
             cacheControl: { bypassCache: true },
             mapRequestToAsset: (request) =>
-              new Request(`${new URL(request.url).origin}/404.html`, request),
+              new Request(`${new URL(request.url).origin}/index.html`, request),
           },
-        );
-      }
-    } else {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: 'Invalid request',
-        }),
-        {
-          status: 200,
-          headers: Config.headers,
-        },
-      );
-    }
-  });
+        ),
+      )
+      .all('/api:key/*', validateKey, this.apiRouter.handle)
+      .all('*', async (req, env, ctx) => {
+        if (req.method === 'GET') {
+          try {
+            return await getAssetFromKV(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { request: req as any, waitUntil: ctx.waitUntil },
+              {
+                ASSET_MANIFEST: JSON.parse(manifest),
+                ASSET_NAMESPACE: env.__STATIC_CONTENT,
+                cacheControl: { bypassCache: true },
+              },
+            );
+          } catch (e) {
+            return getAssetFromKV(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { request: req as any, waitUntil: ctx.waitUntil },
+              {
+                ASSET_MANIFEST: JSON.parse(manifest),
+                ASSET_NAMESPACE: env.__STATIC_CONTENT,
+                cacheControl: { bypassCache: true },
+                mapRequestToAsset: (request) =>
+                  new Request(`${new URL(request.url).origin}/404.html`, request),
+              },
+            );
+          }
+        } else {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              data: 'Invalid request',
+            }),
+            {
+              status: 200,
+              headers: Config.headers,
+            },
+          );
+        }
+      });
 
-apiRouter
-  .post('/v2/freshstatus', validateJsonBody, handleFreshstatus)
-  .post('/v2/telegram', validateJsonBody, handleTelegram)
-  .post('/v2/wordpress', validateJsonBody, handleWordPress);
+    this.apiRouter
+      .post('/v2/freshstatus', validateJsonBody, freshstatusController.sendNotification)
+      .post('/v2/telegram', validateJsonBody, telegramController.executeCommand)
+      .post('/v2/wordpress', validateJsonBody, wordPressController.sendNotification);
+  }
+
+  public async handle(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return this.rootRouter.handle(req, env, ctx);
+  }
+}

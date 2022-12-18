@@ -1,4 +1,4 @@
-export class CloudflareApi {
+export class CloudflareApiService {
   private readonly baseUrl = `https://api.cloudflare.com/client/v4`;
   private readonly headers = new Headers({
     authorization: `Bearer ${this.token}`,
@@ -68,5 +68,3 @@ export class CloudflareApi {
     return response.json();
   }
 }
-
-export default CloudflareApi;

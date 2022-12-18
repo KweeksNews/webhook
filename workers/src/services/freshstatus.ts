@@ -1,77 +1,36 @@
 import moment from 'moment';
 import { Config } from '../config';
-import { TelegramBot } from '../services';
+import { TelegramBotService } from './telegram-bot';
 
-export class FreshstatusHandler {
-  private chatId!: string;
-
-  public constructor(private readonly telegramBot: TelegramBot) {}
-
-  public async handle(request: Request, env: Env) {
-    try {
-      const data = await request.json();
-
-      if (await this.executeCommand(data, env)) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: 'Request success',
-          }),
-          {
-            status: 200,
-            headers: Config.headers,
-          },
-        );
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: 'Invalid request',
-        }),
-        {
-          status: 200,
-          headers: Config.headers,
-        },
-      );
-    } catch (error) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: (error as Error).message,
-        }),
-        {
-          status: 500,
-          headers: Config.headers,
-        },
-      );
-    }
-  }
+export class FreshstatusService {
+  public constructor(
+    private readonly env: Env,
+    private readonly telegramBotService: TelegramBotService,
+  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async executeCommand(data: any, env: Env) {
-    const chatId = JSON.parse((await env.CONFIG.get('chat-id')) as string);
-    this.chatId = chatId.server;
+  public async sendNotification(data: any) {
+    const chatId = JSON.parse((await this.env.CONFIG.get('chat-id')) as string).server;
 
     switch (data.event_data?.event_type) {
       case 'INCIDENT_OPEN':
-        await this.sendIncidentOpenedLog(data);
+        await this.sendIncidentOpenedLog(data, chatId);
         return true;
       case 'INCIDENT_NOTE_CREATE':
-        if (data.incident_status == 'Closed') {
-          await this.sendIncidentClosedLog(data);
+        if (data.incident_status === 'Closed') {
+          await this.sendIncidentClosedLog(data, chatId);
         } else {
-          await this.sendIncidentNoteCreatedLog(data);
+          await this.sendIncidentNoteCreatedLog(data, chatId);
         }
         return true;
       case 'MAINTENANCE_PLANNED':
-        await this.sendMaintenancePlannedLog(data);
+        await this.sendMaintenancePlannedLog(data, chatId);
         return true;
       case 'MAINTENANCE_NOTE_CREATE':
-        if (data.incident_status == 'Closed') {
-          await this.sendMaintenanceClosedLog(data);
+        if (data.incident_status === 'Closed') {
+          await this.sendMaintenanceClosedLog(data, chatId);
         } else {
-          await this.sendMaintenanceNoteCreatedLog(data);
+          await this.sendMaintenanceNoteCreatedLog(data, chatId);
         }
         return true;
       default:
@@ -79,12 +38,12 @@ export class FreshstatusHandler {
     }
   }
 
-  public formatDate(date: string) {
+  private formatDate(date: string) {
     return moment(date).format(Config.dateFormat);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendIncidentOpenedLog(data: any) {
+  private async sendIncidentOpenedLog(data: any, chatId: string) {
     const text =
       '<b>#INCIDENTOPENED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -102,8 +61,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -111,7 +70,7 @@ export class FreshstatusHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendIncidentClosedLog(data: any) {
+  private async sendIncidentClosedLog(data: any, chatId: string) {
     const text =
       '<b>#INCIDENTCLOSED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -127,8 +86,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -136,7 +95,7 @@ export class FreshstatusHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendIncidentNoteCreatedLog(data: any) {
+  private async sendIncidentNoteCreatedLog(data: any, chatId: string) {
     const text =
       '<b>#INCIDENTNOTECREATED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -152,8 +111,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -161,7 +120,7 @@ export class FreshstatusHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendMaintenancePlannedLog(data: any) {
+  private async sendMaintenancePlannedLog(data: any, chatId: string) {
     const text =
       '<b>#MAINTENANCEPLANNED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -180,8 +139,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -189,7 +148,7 @@ export class FreshstatusHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendMaintenanceClosedLog(data: any) {
+  private async sendMaintenanceClosedLog(data: any, chatId: string) {
     const text =
       '<b>#MAINTENANCECLOSED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -205,8 +164,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -214,7 +173,7 @@ export class FreshstatusHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendMaintenanceNoteCreatedLog(data: any) {
+  private async sendMaintenanceNoteCreatedLog(data: any, chatId: string) {
     const text =
       '<b>#MAINTENANCENOTECREATED</b>\n\n' +
       `<b>Name:</b> ${data.title}\n` +
@@ -230,8 +189,8 @@ export class FreshstatusHandler {
       ],
     });
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,

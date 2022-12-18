@@ -1,68 +1,24 @@
-import { Config } from '../config';
-import { TelegramBot } from '../services';
+import { TelegramBotService } from './telegram-bot';
 
-export class WordPressHandler {
-  private chatId!: string;
-
-  public constructor(private readonly telegramBot: TelegramBot) {}
-
-  public async handle(request: Request, env: Env) {
-    try {
-      const data = await request.json();
-
-      if (await this.executeCommand(data, env)) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: 'Request success',
-          }),
-          {
-            status: 200,
-            headers: Config.headers,
-          },
-        );
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: 'Invalid request',
-        }),
-        {
-          status: 200,
-          headers: Config.headers,
-        },
-      );
-    } catch (error) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: (error as Error).message,
-        }),
-        {
-          status: 500,
-          headers: Config.headers,
-        },
-      );
-    }
-  }
+export class WordPressService {
+  public constructor(
+    private readonly env: Env,
+    private readonly telegramBotService: TelegramBotService,
+  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async executeCommand(data: any, env: Env) {
-    const chatId = JSON.parse((await env.CONFIG.get('chat-id')) as string);
+  public async sendNotification(data: any) {
+    const chatId = JSON.parse((await this.env.CONFIG.get('chat-id')) as string);
 
     switch (data.channel) {
       case 'wordpress':
-        this.chatId = chatId.wordpress;
-        await this.sendWordPressLog(data);
+        await this.sendWordPressLog(data, chatId.wordpress);
         return true;
       case 'content':
-        this.chatId = chatId.content;
-        await this.sendContentLog(data);
+        await this.sendContentLog(data, chatId.content);
         return true;
       case 'user':
-        this.chatId = chatId.user;
-        await this.sendUserLog(data);
+        await this.sendUserLog(data, chatId.user);
         return true;
       default:
         return false;
@@ -70,7 +26,7 @@ export class WordPressHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendWordPressLog(data: any) {
+  private async sendWordPressLog(data: any, chatId: string) {
     let text = `<b>${data.event}</b>\n\n`;
 
     if (data.name) text += `<b>Name:</b> ${data.name}\n`;
@@ -78,15 +34,15 @@ export class WordPressHandler {
     if (data.from) text += `<b>From:</b> ${data.from}\n`;
     if (data.to) text += `<b>To:</b> ${data.to}\n`;
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
     });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendContentLog(data: any) {
+  private async sendContentLog(data: any, chatId: string) {
     let text = `<b>${data.event}</b>\n\n`;
     let replyMarkup = '';
 
@@ -119,8 +75,8 @@ export class WordPressHandler {
       });
     }
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
       replyMarkup,
@@ -128,7 +84,7 @@ export class WordPressHandler {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async sendUserLog(data: any) {
+  private async sendUserLog(data: any, chatId: string) {
     let text = `<b>${data.event}</b>\n\n`;
 
     if (data.nicename && data.username)
@@ -140,8 +96,8 @@ export class WordPressHandler {
     if (data.newrole) text += `<b>New Role:</b> ${data.newrole}\n`;
     if (data.ipaddress) text += `<b>IP Address:</b> ${data.ipaddress}\n`;
 
-    await this.telegramBot.sendMessage({
-      chatId: this.chatId,
+    await this.telegramBotService.sendMessage({
+      chatId: chatId,
       text,
       parseMode: 'HTML',
     });

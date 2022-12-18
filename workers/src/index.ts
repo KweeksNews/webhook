@@ -1,7 +1,9 @@
-import { handleFetchEvent } from './router';
+import { AppRouter } from './router';
 
 export default {
   async fetch(req: Request, env: Env, ctx: ExecutionContext) {
-    return await handleFetchEvent(req, env, ctx);
+    const router = new AppRouter(env);
+
+    return await router.handle(req, env, ctx);
   },
 };

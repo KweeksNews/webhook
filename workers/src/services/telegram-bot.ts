@@ -1,4 +1,4 @@
-export class TelegramBot {
+export class TelegramBotService {
   private readonly baseUrl = `https://api.telegram.org/bot${this.token}`;
   private readonly headers = new Headers({
     'content-type': 'application/json',
@@ -7,7 +7,7 @@ export class TelegramBot {
   public constructor(private readonly token: string, public readonly username: string) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public composeFetchBody(options: any): string {
+  private composeFetchBody(options: any): string {
     Object.keys(options).forEach((key) => {
       if (
         !options[key] ||
@@ -30,14 +30,15 @@ export class TelegramBot {
     replyToMessageId,
     replyMarkup,
   }: {
-    chatId: string;
+    chatId: number | string;
     text: string;
     parseMode?: string;
     disableWebPagePreview?: boolean;
     disableNotification?: boolean;
     replyToMessageId?: number;
     replyMarkup?: string;
-  }): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Promise<any> {
     const url = `${this.baseUrl}/sendMessage`;
     const body = this.composeFetchBody({
       chat_id: chatId,
@@ -49,11 +50,13 @@ export class TelegramBot {
       reply_markup: replyMarkup,
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.headers,
       body,
     });
+
+    return response.json();
   }
 
   public async forwardMessage({
@@ -66,7 +69,8 @@ export class TelegramBot {
     fromChatId: string;
     disableNotification?: boolean;
     messageId: number;
-  }): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Promise<any> {
     const url = `${this.baseUrl}/forwardMessage`;
     const body = this.composeFetchBody({
       chat_id: chatId,
@@ -75,11 +79,13 @@ export class TelegramBot {
       message_id: messageId,
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.headers,
       body,
     });
+
+    return response.json();
   }
 
   public async sendPhoto({
@@ -96,7 +102,8 @@ export class TelegramBot {
     parseMode?: string;
     disableNotification?: boolean;
     replyToMessageId?: number;
-  }): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Promise<any> {
     const url = `${this.baseUrl}/sendPhoto`;
     const body = this.composeFetchBody({
       chat_id: chatId,
@@ -107,11 +114,13 @@ export class TelegramBot {
       reply_to_message_id: replyToMessageId,
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.headers,
       body,
     });
+
+    return response.json();
   }
 
   public async sendVideo({
@@ -138,7 +147,8 @@ export class TelegramBot {
     supportsStreaming?: boolean;
     disableNotification?: boolean;
     replyToMessageId?: number;
-  }): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Promise<any> {
     const url = `${this.baseUrl}/sendVideo`;
     const body = this.composeFetchBody({
       chat_id: chatId,
@@ -154,11 +164,13 @@ export class TelegramBot {
       reply_to_message_id: replyToMessageId,
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.headers,
       body,
     });
+
+    return response.json();
   }
 
   public async sendAnimation({
@@ -183,7 +195,8 @@ export class TelegramBot {
     parseMode?: string;
     disableNotification?: boolean;
     replyToMessageId?: number;
-  }): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }): Promise<any> {
     const url = `${this.baseUrl}/sendAnimation`;
     const body = this.composeFetchBody({
       chat_id: chatId,
@@ -198,10 +211,12 @@ export class TelegramBot {
       reply_to_message_id: replyToMessageId,
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.headers,
       body,
     });
+
+    return response.json();
   }
 }
