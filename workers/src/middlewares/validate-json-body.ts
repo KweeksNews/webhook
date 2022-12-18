@@ -6,7 +6,9 @@ export async function validateJsonBody(request: Request) {
     const headers = request.headers as Headers;
 
     if (headers.get('content-type')?.includes('application/json')) {
-      await request.json();
+      const requestClone = request.clone();
+
+      await requestClone.json();
     } else {
       return new Response(
         JSON.stringify({
