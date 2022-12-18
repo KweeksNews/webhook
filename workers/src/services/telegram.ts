@@ -1,3 +1,4 @@
+import { inject, singleton } from 'tsyringe';
 import { String } from '../config';
 import {
   CommandList,
@@ -8,6 +9,7 @@ import {
 import { CloudflareApiService } from './cloudflare-api';
 import { TelegramBotService } from './telegram-bot';
 
+@singleton()
 export class TelegramService {
   private readonly commands: CommandList = {
     start: async (params) => await this.start(params),
@@ -17,7 +19,7 @@ export class TelegramService {
   };
 
   public constructor(
-    private readonly env: Env,
+    @inject('Env') private readonly env: Env,
     private readonly cloudflareApiService: CloudflareApiService,
     private readonly telegramBotService: TelegramBotService,
   ) {}

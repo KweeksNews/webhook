@@ -2,24 +2,24 @@
 import manifest from '__STATIC_CONTENT_MANIFEST';
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 import { Router } from 'itty-router';
+import { singleton } from 'tsyringe';
 import { Config } from './config';
-import { AppInjection } from './injection';
+import { FreshstatusController, TelegramController, WordPressController } from './controllers';
 import { validateKey, validateJsonBody } from './middlewares';
 import { CustomRouter, Request } from './types';
 
+@singleton()
 export class AppRouter {
   private readonly rootRouter: CustomRouter;
   private readonly apiRouter: CustomRouter;
 
-  public constructor(private readonly env: Env) {
+  public constructor(
+    private readonly freshstatusController: FreshstatusController,
+    private readonly telegramController: TelegramController,
+    private readonly wordPressController: WordPressController,
+  ) {
     this.rootRouter = <CustomRouter>Router();
     this.apiRouter = <CustomRouter>Router({ base: '/api' });
-
-    const injection = new AppInjection(this.env);
-
-    const freshstatusController = injection.freshstatusController;
-    const telegramController = injection.telegramController;
-    const wordPressController = injection.wordPressController;
 
     this.rootRouter
       .get<CustomRouter>('/', (req, env, ctx) =>
@@ -65,24 +65,15 @@ export class AppRouter {
       });
 
     this.apiRouter
-      .post<CustomRouter>(
-        '/freshstatus',
-        validateKey,
-        validateJsonBody,
-        freshstatusController.sendNotification,
-      )
-      .post<CustomRouter>(
-        '/telegram',
-        validateKey,
-        validateJsonBody,
-        telegramController.executeCommand,
-      )
-      .post<CustomRouter>(
-        '/wordpress',
-        validateKey,
-        validateJsonBody,
-        wordPressController.sendNotification,
-      )
+      .post<CustomRouter>('/freshstatus', validateKey, validateJsonBody, (req) => {
+        return this.freshstatusController.sendNotification(req);
+      })
+      .post<CustomRouter>('/telegram', validateKey, validateJsonBody, (req) => {
+        return this.telegramController.executeCommand(req);
+      })
+      .post<CustomRouter>('/wordpress', validateKey, validateJsonBody, (req) => {
+        this.wordPressController.sendNotification(req);
+      })
       .all<CustomRouter>('*', async () => {
         return new Response(
           JSON.stringify({

@@ -1,7 +1,9 @@
+import { singleton } from 'tsyringe';
 import { Config } from '../config';
 import { FreshstatusService } from '../services';
 import { Request } from '../types';
 
+@singleton()
 export class FreshstatusController {
   public constructor(private readonly freshstatusService: FreshstatusService) {}
 

@@ -12,6 +12,8 @@
     "moduleResolution": "Node",
     "sourceMap": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "types": [
       "@cloudflare/workers-types",
     ]

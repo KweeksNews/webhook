@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { inject, singleton } from 'tsyringe';
 import { Config } from '../config';
 import {
   IncidentNoteCreatedNotificationData,
@@ -10,9 +11,10 @@ import {
 } from '../types';
 import { TelegramBotService } from './telegram-bot';
 
+@singleton()
 export class FreshstatusService {
   public constructor(
-    private readonly env: Env,
+    @inject('Env') private readonly env: Env,
     private readonly telegramBotService: TelegramBotService,
   ) {}
 

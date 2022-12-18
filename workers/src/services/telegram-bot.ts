@@ -1,3 +1,4 @@
+import { inject, singleton } from 'tsyringe';
 import {
   ForwardMessageParams,
   ForwardMessageResBody,
@@ -5,13 +6,17 @@ import {
   SendMessageResBody,
 } from '../types';
 
+@singleton()
 export class TelegramBotService {
   private readonly baseUrl = `https://api.telegram.org/bot${this.token}`;
   private readonly headers = new Headers({
     'content-type': 'application/json',
   });
 
-  public constructor(private readonly token: string, public readonly username: string) {}
+  public constructor(
+    @inject('TelegramToken') private readonly token: string,
+    @inject('TelegramUsername') public readonly username: string,
+  ) {}
 
   /**
    * Use this method to send text messages. On success, the sent Message is returned.

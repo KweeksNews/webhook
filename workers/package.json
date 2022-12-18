@@ -10,7 +10,9 @@
     "@grammyjs/types": "2.10.3",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "itty-router": "3.0.8",
-    "moment": "2.29.4"
+    "moment": "2.29.4",
+    "reflect-metadata": "0.1.13",
+    "tsyringe": "4.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20221111.1",

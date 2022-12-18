@@ -1,3 +1,4 @@
+import { inject, singleton } from 'tsyringe';
 import {
   ChangeSecurityLevelParams,
   ChangeSecurityLevelResBody,
@@ -8,6 +9,7 @@ import {
   GetSecurityLevelResBody,
 } from '../types';
 
+@singleton()
 export class CloudflareApiService {
   private readonly baseUrl = `https://api.cloudflare.com/client/v4`;
   private readonly headers = new Headers({
@@ -15,7 +17,10 @@ export class CloudflareApiService {
     'content-type': 'application/json',
   });
 
-  public constructor(private readonly token: string, private readonly zoneId: string) {}
+  public constructor(
+    @inject('CloudflareToken') private readonly token: string,
+    @inject('CloudflareZoneId') private readonly zoneId: string,
+  ) {}
 
   /**
    * Use this method to get current zone security level setting. On success, the security level settings is returned.

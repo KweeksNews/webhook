@@ -1,7 +1,9 @@
+import { singleton } from 'tsyringe';
 import { Config } from '../config';
 import { WordPressService } from '../services';
 import { Request } from '../types';
 
+@singleton()
 export class WordPressController {
   public constructor(private readonly wordPressService: WordPressService) {}
 

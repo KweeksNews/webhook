@@ -1,9 +1,11 @@
+import { inject, singleton } from 'tsyringe';
 import { TelegramBotService } from './telegram-bot';
 import { SendWordPressNotificationData, SendWordPressNotificationResBody } from '../types';
 
+@singleton()
 export class WordPressService {
   public constructor(
-    private readonly env: Env,
+    @inject('Env') private readonly env: Env,
     private readonly telegramBotService: TelegramBotService,
   ) {}
 
