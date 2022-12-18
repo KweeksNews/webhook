@@ -40,50 +40,49 @@ export class AppRouter {
       )
       .all('/api:key/*', validateKey, this.apiRouter.handle)
       .all('*', async (req, env, ctx) => {
-        if (req.method === 'GET') {
-          try {
-            return await getAssetFromKV(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              { request: req as any, waitUntil: ctx.waitUntil },
-              {
-                ASSET_MANIFEST: JSON.parse(manifest),
-                ASSET_NAMESPACE: env.__STATIC_CONTENT,
-                cacheControl: { bypassCache: true },
-              },
-            );
-          } catch (e) {
-            const response = await getAssetFromKV(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              { request: req as any, waitUntil: ctx.waitUntil },
-              {
-                ASSET_MANIFEST: JSON.parse(manifest),
-                ASSET_NAMESPACE: env.__STATIC_CONTENT,
-                cacheControl: { bypassCache: true },
-                mapRequestToAsset: (request) =>
-                  new Request(`${new URL(request.url).origin}/404.html`, request),
-              },
-            );
-
-            return new Response(response.body, { status: 404, headers: response.headers });
-          }
-        } else {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              data: 'Not found',
-            }),
+        try {
+          return await getAssetFromKV(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { request: req as any, waitUntil: ctx.waitUntil },
             {
-              status: 404,
-              headers: Config.headers,
+              ASSET_MANIFEST: JSON.parse(manifest),
+              ASSET_NAMESPACE: env.__STATIC_CONTENT,
+              cacheControl: { bypassCache: true },
             },
           );
+        } catch (e) {
+          const response = await getAssetFromKV(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { request: req as any, waitUntil: ctx.waitUntil },
+            {
+              ASSET_MANIFEST: JSON.parse(manifest),
+              ASSET_NAMESPACE: env.__STATIC_CONTENT,
+              cacheControl: { bypassCache: true },
+              mapRequestToAsset: (request) =>
+                new Request(`${new URL(request.url).origin}/404.html`, request),
+            },
+          );
+
+          return new Response(response.body, { status: 404, headers: response.headers });
         }
       });
 
     this.apiRouter
       .post('/v2/freshstatus', validateJsonBody, freshstatusController.sendNotification)
       .post('/v2/telegram', validateJsonBody, telegramController.executeCommand)
-      .post('/v2/wordpress', validateJsonBody, wordPressController.sendNotification);
+      .post('/v2/wordpress', validateJsonBody, wordPressController.sendNotification)
+      .all('*', async () => {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            data: 'Not found',
+          }),
+          {
+            status: 404,
+            headers: Config.headers,
+          },
+        );
+      });
   }
 
   public async handle(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
