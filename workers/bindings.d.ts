@@ -1,7 +1,6 @@
 declare interface Env {
   __STATIC_CONTENT: KVNamespace;
   CONFIG: KVNamespace;
-  API_KEY: string;
   TELEGRAM_TOKEN: string;
   CLOUDFLARE_ZONEID: string;
   CLOUDFLARE_TOKEN: string;
