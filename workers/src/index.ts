@@ -14,6 +14,7 @@ export default {
 
     const router = container.resolve(AppRouter);
 
+    console.log(req);
     return await router.handle(req, env, ctx);
   },
 };

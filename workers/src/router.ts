@@ -72,7 +72,7 @@ export class AppRouter {
         return this.telegramController.executeCommand(req);
       })
       .post<CustomRouter>('/wordpress', validateKey, validateJsonBody, (req) => {
-        this.wordPressController.sendNotification(req);
+        return this.wordPressController.sendNotification(req);
       })
       .all<CustomRouter>('*', async () => {
         return new Response(
