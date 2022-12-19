@@ -110,7 +110,7 @@ export class TelegramService {
     let replyMarkup;
 
     if (chatType === 'private') {
-      if (args) {
+      if (args.length !== 0) {
         text = String.help.none(args.join(' '));
       } else {
         text = String.help.self;
@@ -195,7 +195,7 @@ export class TelegramService {
       } else {
         text = String.maintenance.alreadySet('off');
       }
-    } else if (args) {
+    } else if (args.length !== 0) {
       text = String.unknownValue;
     } else {
       const check = (await this.env.CONFIG.get('route_id')) as ConfigRouteId;
@@ -269,7 +269,7 @@ export class TelegramService {
       } else {
         text = String.underattack.alreadySet('off');
       }
-    } else if (args) {
+    } else if (args.length !== 0) {
       text = String.unknownValue;
     } else {
       const check = await this.cloudflareApiService.getSecurityLevel();
