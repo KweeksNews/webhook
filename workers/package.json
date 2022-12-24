@@ -6,9 +6,9 @@
     "build": "rimraf dist && tsc --build"
   },
   "dependencies": {
-    "@cloudflare/kv-asset-handler": "0.2.0",
+    "@cloudflare/kv-asset-handler": "0.3.0",
     "@grammyjs/types": "2.10.3",
-    "@typescript-eslint/eslint-plugin": "5.46.1",
+    "@typescript-eslint/eslint-plugin": "5.47.0",
     "itty-router": "3.0.8",
     "moment": "2.29.4",
     "reflect-metadata": "0.1.13",
@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20221111.1",
-    "@typescript-eslint/parser": "5.46.1",
-    "eslint": "8.29.0",
+    "@typescript-eslint/parser": "5.47.0",
+    "eslint": "8.30.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-prettier": "4.2.1",
