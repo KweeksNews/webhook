@@ -21,6 +21,10 @@ export class AppRouter {
     this.rootRouter = <CustomRouter>Router();
     this.apiRouter = <CustomRouter>Router({ base: '/api' });
 
+    const sendFreshstatusNotification = this.freshstatusController.sendNotification;
+    const executeTelegramCommand = this.telegramController.executeCommand;
+    const sendWordPressNotification = this.wordPressController.sendNotification;
+
     this.rootRouter
       .get<CustomRouter>('/', (req, env, ctx) =>
         getAssetFromKV(
@@ -60,20 +64,22 @@ export class AppRouter {
             },
           );
 
-          return new Response(response.body, { status: 404, headers: response.headers });
+          return new Response(response.body, {
+            status: 404,
+            headers: response.headers,
+          });
         }
       });
 
     this.apiRouter
-      .post<CustomRouter>('/freshstatus', validateKey, validateJsonBody, (req) => {
-        return this.freshstatusController.sendNotification(req);
-      })
-      .post<CustomRouter>('/telegram', validateKey, validateJsonBody, (req) => {
-        return this.telegramController.executeCommand(req);
-      })
-      .post<CustomRouter>('/wordpress', validateKey, validateJsonBody, (req) => {
-        return this.wordPressController.sendNotification(req);
-      })
+      .post<CustomRouter>(
+        '/freshstatus',
+        validateKey,
+        validateJsonBody,
+        sendFreshstatusNotification,
+      )
+      .post<CustomRouter>('/telegram', validateKey, validateJsonBody, executeTelegramCommand)
+      .post<CustomRouter>('/wordpress', validateKey, validateJsonBody, sendWordPressNotification)
       .all<CustomRouter>('*', async () => {
         return new Response(
           JSON.stringify({

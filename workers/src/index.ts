@@ -10,7 +10,9 @@ export default {
     container.register('CloudflareToken', { useValue: env.CLOUDFLARE_TOKEN });
     container.register('CloudflareZoneId', { useValue: env.CLOUDFLARE_ZONEID });
     container.register('TelegramToken', { useValue: env.TELEGRAM_TOKEN });
-    container.register('TelegramUsername', { useValue: Config.telegram.username });
+    container.register('TelegramUsername', {
+      useValue: Config.telegram.username,
+    });
 
     const router = container.resolve(AppRouter);
 

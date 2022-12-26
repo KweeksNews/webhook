@@ -9,6 +9,7 @@
     "@cloudflare/kv-asset-handler": "0.3.0",
     "@grammyjs/types": "2.10.3",
     "@typescript-eslint/eslint-plugin": "5.47.0",
+    "auto-bind": "5.0.1",
     "itty-router": "3.0.10",
     "moment": "2.29.4",
     "reflect-metadata": "0.1.13",

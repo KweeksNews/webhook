@@ -1,3 +1,4 @@
+import autoBind from 'auto-bind';
 import { singleton } from 'tsyringe';
 import { Config } from '../config';
 import { TelegramService } from '../services';
@@ -5,7 +6,9 @@ import { Request } from '../types';
 
 @singleton()
 export class TelegramController {
-  public constructor(private readonly telegramService: TelegramService) {}
+  public constructor(private readonly telegramService: TelegramService) {
+    autoBind(this);
+  }
 
   public async executeCommand(request: Request) {
     try {
