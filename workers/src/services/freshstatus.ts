@@ -66,8 +66,14 @@ export class FreshstatusService {
     }
   }
 
-  private formatDate(date: string): string {
-    return moment(date).format(Config.dateFormat);
+  private formatDate(rawDate: string): string {
+    const date = moment(rawDate);
+
+    if (date.isValid()) {
+      return date.format(Config.dateFormat);
+    } else {
+      return moment().format(Config.dateFormat);
+    }
   }
 
   private async sendIncidentOpenedLog(
