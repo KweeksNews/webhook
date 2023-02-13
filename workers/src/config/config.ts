@@ -1,5 +1,8 @@
 export const Config = {
-  dateFormat: 'D MMMM YYYY, HH:mm:ss',
+  date: {
+    format: 'D MMMM YYYY, HH:mm:ss z',
+    timezone: 'Asia/Jakarta',
+  },
   headers: new Headers({
     'content-type': 'application/json',
     'user-agent': 'KweeksHook/2.0.0 (+https://webhook.kweeksnews.com/)',

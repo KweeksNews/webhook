@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { inject, singleton } from 'tsyringe';
 import { Config } from '../config';
 import {
@@ -70,9 +70,9 @@ export class FreshstatusService {
     const date = moment(rawDate);
 
     if (date.isValid()) {
-      return date.format(Config.dateFormat);
+      return date.tz(Config.date.timezone).format(Config.date.format);
     } else {
-      return moment().format(Config.dateFormat);
+      return moment().tz(Config.date.timezone).format(Config.date.format);
     }
   }
 
