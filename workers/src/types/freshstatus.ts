@@ -20,6 +20,26 @@ export type IncidentOpenNotificationData = BaseNotificationData & {
   is_private: string;
   source: string;
   affected_services: string;
+  status: string;
+  notification_options: {
+    send_tweet: boolean;
+    send_email: boolean;
+  };
+};
+
+export type IncidentClosedNotificationData = BaseNotificationData & {
+  event_data: {
+    event_type: 'INCIDENT_CLOSED';
+  };
+  id: number;
+  title: string;
+  description: string;
+  start_time: string;
+  end_time: string;
+  is_private: string;
+  source: string;
+  affected_services: string;
+  status: string;
   notification_options: {
     send_tweet: boolean;
     send_email: boolean;
@@ -38,13 +58,14 @@ export type MaintenancePlannedNotificationData = BaseNotificationData & {
   is_private: string;
   source: string;
   affected_services: string;
+  status: string;
   notification_options: {
+    send_tweet: boolean;
+    send_email: boolean;
     email_before_one_hour: boolean;
     email_before_day_hour: boolean;
     email_on_start: boolean;
     email_on_complete: boolean;
-    send_tweet: boolean;
-    send_email: boolean;
   };
   scheduled_start_time: string;
   scheduled_end_time: string;
@@ -54,45 +75,70 @@ export type MaintenancePlannedNotificationData = BaseNotificationData & {
   is_auto_update_component_status_on_scheduled_end: string;
 };
 
-export type IncidentNoteCreatedNotificationData = BaseNotificationData & {
+export type MaintenanceOpenNotificationData = BaseNotificationData & {
   event_data: {
-    event_type: 'INCIDENT_NOTE_CREATE';
+    event_type: 'MAINTENANCE_OPEN';
   };
   id: number;
-  incident_id: number;
-  incident_status: string;
   title: string;
-  message: string;
-  status: string;
+  description: string;
+  start_time: string;
+  end_time: string;
   is_private: string;
+  source: string;
+  affected_services: string;
+  status: string;
   notification_options: {
     send_tweet: boolean;
     send_email: boolean;
+    email_before_one_hour: boolean;
+    email_before_day_hour: boolean;
+    email_on_start: boolean;
+    email_on_complete: boolean;
   };
+  scheduled_start_time: string;
+  scheduled_end_time: string;
+  is_auto_update_status_on_scheduled_start: string;
+  is_auto_update_status_on_scheduled_end: string;
+  is_auto_update_component_status_on_scheduled_start: string;
+  is_auto_update_component_status_on_scheduled_end: string;
 };
 
-export type MaintenanceNoteCreatedNotificationData = BaseNotificationData & {
+export type MaintenanceClosedNotificationData = BaseNotificationData & {
   event_data: {
-    event_type: 'MAINTENANCE_NOTE_CREATE';
+    event_type: 'MAINTENANCE_CLOSED';
   };
   id: number;
-  incident_id: number;
-  incident_status: string;
   title: string;
-  message: string;
-  status: string;
+  description: string;
+  start_time: string;
+  end_time: string;
   is_private: string;
+  source: string;
+  affected_services: string;
+  status: string;
   notification_options: {
     send_tweet: boolean;
     send_email: boolean;
+    email_before_one_hour: boolean;
+    email_before_day_hour: boolean;
+    email_on_start: boolean;
+    email_on_complete: boolean;
   };
+  scheduled_start_time: string;
+  scheduled_end_time: string;
+  is_auto_update_status_on_scheduled_start: string;
+  is_auto_update_status_on_scheduled_end: string;
+  is_auto_update_component_status_on_scheduled_start: string;
+  is_auto_update_component_status_on_scheduled_end: string;
 };
 
 export type SendFreshstatusNotificationData =
   | IncidentOpenNotificationData
+  | IncidentClosedNotificationData
   | MaintenancePlannedNotificationData
-  | IncidentNoteCreatedNotificationData
-  | MaintenanceNoteCreatedNotificationData;
+  | MaintenanceOpenNotificationData
+  | MaintenanceClosedNotificationData;
 
 export type SendFreshstatusNotificationResBody = {
   success: boolean;
