@@ -13,14 +13,17 @@ export class WordPressService {
     data: SendWordPressNotificationData,
   ): Promise<SendWordPressNotificationResBody> {
     const chatId = JSON.parse((await this.env.CONFIG.get('chat_id')) as string) as ConfigChatId;
+    const threadId = JSON.parse(
+      (await this.env.CONFIG.get('thread_id')) as string,
+    ) as ConfigThreadId;
 
     switch (data.channel) {
       case 'wordpress':
-        return await this.sendWordPressLog(data, chatId.wordpress);
+        return await this.sendWordPressLog(data, chatId.management, threadId.wordpress);
       case 'content':
-        return await this.sendContentLog(data, chatId.content);
+        return await this.sendContentLog(data, chatId.management, threadId.content);
       case 'user':
-        return await this.sendUserLog(data, chatId.user);
+        return await this.sendUserLog(data, chatId.management, threadId.user);
       default:
         return {
           success: false,
@@ -32,6 +35,7 @@ export class WordPressService {
   private async sendWordPressLog(
     data: SendWordPressNotificationData,
     chatId: number,
+    threadId: number,
   ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
 
@@ -42,6 +46,7 @@ export class WordPressService {
 
     const response = await this.telegramBotService.sendMessage({
       chat_id: chatId,
+      message_thread_id: threadId,
       text,
       parse_mode: 'HTML',
     });
@@ -65,6 +70,7 @@ export class WordPressService {
   private async sendContentLog(
     data: SendWordPressNotificationData,
     chatId: number,
+    threadId: number,
   ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
     let replyMarkup;
@@ -100,6 +106,7 @@ export class WordPressService {
 
     const response = await this.telegramBotService.sendMessage({
       chat_id: chatId,
+      message_thread_id: threadId,
       text,
       parse_mode: 'HTML',
       reply_markup: replyMarkup,
@@ -124,6 +131,7 @@ export class WordPressService {
   private async sendUserLog(
     data: SendWordPressNotificationData,
     chatId: number,
+    threadId: number,
   ): Promise<SendWordPressNotificationResBody> {
     let text = `<b>${data.event}</b>\n\n`;
 
@@ -138,6 +146,7 @@ export class WordPressService {
 
     const response = await this.telegramBotService.sendMessage({
       chat_id: chatId,
+      message_thread_id: threadId,
       text,
       parse_mode: 'HTML',
     });

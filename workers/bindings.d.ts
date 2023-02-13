@@ -14,7 +14,15 @@ declare module '__STATIC_CONTENT_MANIFEST' {
 declare type ConfigApiKey = string[];
 
 declare type ConfigChatId = {
-  server: number;
+  management: number;
+  service: number;
+  wordpress: number;
+  user: number;
+  content: number;
+};
+
+declare type ConfigThreadId = {
+  service: number;
   wordpress: number;
   user: number;
   content: number;
