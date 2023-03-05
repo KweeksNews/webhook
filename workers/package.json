@@ -11,7 +11,7 @@
     "@typescript-eslint/eslint-plugin": "5.54.0",
     "auto-bind": "5.0.1",
     "itty-router": "3.0.11",
-    "moment-timezone": "^0.5.40",
+    "moment-timezone": "0.5.41",
     "reflect-metadata": "0.1.13",
     "tsyringe": "4.7.0"
   },
