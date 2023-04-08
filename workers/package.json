@@ -8,16 +8,16 @@
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.3.0",
     "@grammyjs/types": "2.12.1",
-    "@typescript-eslint/eslint-plugin": "5.57.0",
+    "@typescript-eslint/eslint-plugin": "5.57.1",
     "auto-bind": "5.0.1",
     "itty-router": "3.0.12",
-    "moment-timezone": "0.5.42",
+    "moment-timezone": "0.5.43",
     "reflect-metadata": "0.1.13",
     "tsyringe": "4.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20230321.0",
-    "@typescript-eslint/parser": "5.57.0",
+    "@typescript-eslint/parser": "5.57.1",
     "eslint": "8.37.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-import": "2.27.5",
