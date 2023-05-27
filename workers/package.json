@@ -8,7 +8,7 @@
   "dependencies": {
     "@cloudflare/kv-asset-handler": "0.3.0",
     "@grammyjs/types": "2.12.1",
-    "@typescript-eslint/eslint-plugin": "5.59.6",
+    "@typescript-eslint/eslint-plugin": "5.59.7",
     "auto-bind": "5.0.1",
     "itty-router": "3.0.12",
     "moment-timezone": "0.5.43",
@@ -16,9 +16,9 @@
     "tsyringe": "4.7.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20230511.0",
-    "@typescript-eslint/parser": "5.59.6",
-    "eslint": "8.40.0",
+    "@cloudflare/workers-types": "4.20230518.0",
+    "@typescript-eslint/parser": "5.59.7",
+    "eslint": "8.41.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-prettier": "4.2.1",
