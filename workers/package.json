@@ -11,12 +11,12 @@
     "@typescript-eslint/eslint-plugin": "5.62.0",
     "auto-bind": "5.0.1",
     "itty-router": "3.0.12",
-    "moment-timezone": "0.5.45",
+    "moment-timezone": "0.5.46",
     "reflect-metadata": "0.2.2",
     "tsyringe": "4.8.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20240925.0",
+    "@cloudflare/workers-types": "4.20241004.0",
     "@typescript-eslint/parser": "5.62.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "8.10.0",
