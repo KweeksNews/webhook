@@ -16,7 +16,7 @@
     "tsyringe": "4.8.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20241004.0",
+    "@cloudflare/workers-types": "4.20241011.0",
     "@typescript-eslint/parser": "5.62.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "8.10.0",
