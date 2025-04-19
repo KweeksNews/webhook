@@ -13,10 +13,10 @@
     "itty-router": "3.0.12",
     "moment-timezone": "0.5.48",
     "reflect-metadata": "0.2.2",
-    "tsyringe": "4.9.1"
+    "tsyringe": "4.10.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20250410.0",
+    "@cloudflare/workers-types": "4.20250416.0",
     "@typescript-eslint/parser": "5.62.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "8.10.0",
